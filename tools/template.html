@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="風来のシレン6で、店で見た売値・買値から未識別アイテムの候補を絞り込む値段識別ツール。">
+<title>シレン6 値段識別</title>
+<style>
+/* Layout: 値段入力欄を上部に固定し、その下に「売値が一致」「買値が一致」の候補を並べる。配色はRose Glassの構造を青系に置き換え。 */
+@font-face { font-family: "RoseGlassSeedJP"; src: url(data:font/woff2;base64,/*FONT_REG*/) format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "RoseGlassSeedJP"; src: url(data:font/woff2;base64,/*FONT_BOLD*/) format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+
+:root {
+  --rg-bg: #eaf1fa;
+  --rg-text: #20344b;
+  --rg-muted: #566a82;
+  --rg-accent: #2a6cb8;
+  --rg-accent-text: #1d579a;
+  --rg-on-accent: #ffffff;
+  --rg-border: rgba(38, 84, 140, .14);
+  --rg-control-border: rgba(38, 84, 140, .30);
+  --rg-glass: rgba(255, 255, 255, .52);
+  --rg-readable: rgba(255, 255, 255, .78);
+  --rg-edge: rgba(255, 255, 255, .85);
+  --rg-solid-surface: #fbfdff;
+  --rg-control: rgba(255, 255, 255, .75);
+  --rg-danger: #a23e52;
+  --rg-chip-on-bg: #d3e4f8;
+  --rg-chip-on-border: #6b9bd0;
+  --rg-chip-on-text: #174678;
+  --rg-hover-border: #5b8fcc;
+  --rg-hover-bg: #ffffff;
+  --rg-disabled-bg: #e1e8f1;
+  --rg-disabled-text: #5d6e83;
+  --rg-shadow: 0 12px 36px rgba(30, 70, 125, .07), inset 0 1px 1px #fff;
+  --rg-dialog-bg: #f7fbff;
+  --rg-backdrop: rgba(18, 32, 51, .5);
+  --tag-bless-bg: #fbeccb; --tag-bless-fg: #7a5200;
+  --tag-curse-bg: #e8dcf5; --tag-curse-fg: #56308a;
+  --amb-bg: linear-gradient(135deg, #e9f1fb, #dde9f7 60%, #f2f7fd);
+  --amb-glow: radial-gradient(ellipse at 75% 0%, #fbfdff, transparent 58%);
+  --amb-orb: linear-gradient(140deg, #ffffffb0, #9cc2ea65 40%, #7fb0e425 75%, #ffffff50);
+  --amb-orb-edge: #ffffffb0;
+  --rg-radius-surface: 23px;
+  --rg-radius-control: 10px;
+  --rg-radius-pill: 999px;
+  --rg-fast: 150ms;
+  --rg-enter: 220ms;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --rg-bg: #0d1622; --rg-text: #e3ecf7; --rg-muted: #9fb2c8; --rg-accent: #4c93e0; --rg-accent-text: #86bbf2; --rg-on-accent: #07192d;
+    --rg-border: rgba(160, 200, 245, .15); --rg-control-border: rgba(160, 200, 245, .32);
+    --rg-glass: rgba(22, 34, 50, .55); --rg-readable: rgba(22, 34, 50, .78); --rg-edge: rgba(160, 200, 245, .18); --rg-solid-surface: #131f2f;
+    --rg-control: rgba(255, 255, 255, .06); --rg-danger: #f08a9b;
+    --rg-chip-on-bg: #1d3a5e; --rg-chip-on-border: #4d7fb8; --rg-chip-on-text: #cfe3fa; --rg-hover-border: #6aa0dc; --rg-hover-bg: rgba(255, 255, 255, .1);
+    --rg-disabled-bg: #1c2a3b; --rg-disabled-text: #7f93aa;
+    --rg-shadow: 0 12px 36px rgba(0, 0, 0, .35), inset 0 1px 1px rgba(255, 255, 255, .06);
+    --rg-dialog-bg: #16243a; --rg-backdrop: rgba(0, 0, 0, .6);
+    --tag-bless-bg: #4a3a14; --tag-bless-fg: #f4d68a; --tag-curse-bg: #3a2a57; --tag-curse-fg: #d9c4f5;
+    --amb-bg: linear-gradient(135deg, #0b1420, #0f1d30 60%, #0c1622);
+    --amb-glow: radial-gradient(ellipse at 75% 0%, #162840, transparent 58%);
+    --amb-orb: linear-gradient(140deg, #6aa4e418, #3b7ac330 40%, #2a5c9a18 75%, #ffffff08);
+    --amb-orb-edge: rgba(160, 200, 245, .12);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --rg-bg: #0d1622; --rg-text: #e3ecf7; --rg-muted: #9fb2c8; --rg-accent: #4c93e0; --rg-accent-text: #86bbf2; --rg-on-accent: #07192d;
+  --rg-border: rgba(160, 200, 245, .15); --rg-control-border: rgba(160, 200, 245, .32);
+  --rg-glass: rgba(22, 34, 50, .55); --rg-readable: rgba(22, 34, 50, .78); --rg-edge: rgba(160, 200, 245, .18); --rg-solid-surface: #131f2f;
+  --rg-control: rgba(255, 255, 255, .06); --rg-danger: #f08a9b;
+  --rg-chip-on-bg: #1d3a5e; --rg-chip-on-border: #4d7fb8; --rg-chip-on-text: #cfe3fa; --rg-hover-border: #6aa0dc; --rg-hover-bg: rgba(255, 255, 255, .1);
+  --rg-disabled-bg: #1c2a3b; --rg-disabled-text: #7f93aa;
+  --rg-shadow: 0 12px 36px rgba(0, 0, 0, .35), inset 0 1px 1px rgba(255, 255, 255, .06);
+  --rg-dialog-bg: #16243a; --rg-backdrop: rgba(0, 0, 0, .6);
+  --tag-bless-bg: #4a3a14; --tag-bless-fg: #f4d68a; --tag-curse-bg: #3a2a57; --tag-curse-fg: #d9c4f5;
+  --amb-bg: linear-gradient(135deg, #0b1420, #0f1d30 60%, #0c1622);
+  --amb-glow: radial-gradient(ellipse at 75% 0%, #162840, transparent 58%);
+  --amb-orb: linear-gradient(140deg, #6aa4e418, #3b7ac330 40%, #2a5c9a18 75%, #ffffff08);
+  --amb-orb-edge: rgba(160, 200, 245, .12);
+  color-scheme: dark;
+}
+
+body { background: var(--rg-bg); color: var(--rg-text); margin: 0; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 20; background: var(--rg-bg); }
+
+.rg-theme {
+  min-height: 100dvh;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 10px 0;
+  color: var(--rg-text);
+  font-family: "RoseGlassSeedJP", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-synthesis: none;
+  font-size: 16px;
+  line-height: 1.8;
+  isolation: isolate;
+}
+.rg-theme *, .rg-theme *::before, .rg-theme *::after { box-sizing: border-box; }
+.rg-theme :where(h1, h2, h3, p, ul) { margin: 0; padding: 0; }
+.rg-theme ul { list-style: none; }
+
+.rg-page { width: min(1180px, 100%); margin-inline: auto; padding-block: 24px 48px; }
+.rg-stack { display: grid; gap: var(--space-6, 24px); }
+.rg-surface, .rg-nav { background: var(--rg-solid-surface); border: 1px solid var(--rg-edge); box-shadow: var(--rg-shadow); }
+.rg-surface { border-radius: var(--rg-radius-surface); padding: 28px 32px; min-width: 0; }
+.rg-nav { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 10px); z-index: 10; width: min(1180px, 100%); margin: 0 auto; padding: 12px 20px; border-radius: 28px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 20px; }
+.rg-brand { font-size: 18px; line-height: 1.4; font-weight: 700; }
+.rg-heading { font-size: 19px; line-height: 1.6; font-weight: 700; text-wrap: balance; }
+.rg-muted { color: var(--rg-muted); font-size: 14px; }
+.rg-link { color: var(--rg-accent-text); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+.linkbtn { appearance: none; background: none; border: 0; padding: 0; margin: 0; font: inherit; color: var(--rg-accent-text); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.linkbtn:focus-visible, .rg-link:focus-visible { outline: 2px solid var(--rg-accent); outline-offset: 3px; border-radius: 4px; }
+
+.rg-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 10px 18px; border: 1px solid var(--rg-control-border); border-radius: var(--rg-radius-control); background: var(--rg-control); color: var(--rg-text); font: inherit; font-size: 15px; line-height: 1.5; font-weight: 700; cursor: pointer; transition: background-color var(--rg-fast) ease, border-color var(--rg-fast) ease, transform var(--rg-fast) ease; }
+.rg-button--primary { background: var(--rg-accent); color: var(--rg-on-accent); border-color: transparent; border-radius: var(--rg-radius-pill); padding-inline: 24px; box-shadow: inset 0 1px 1px #ffffff70; }
+.rg-button--danger { color: var(--rg-danger); }
+.rg-button:disabled { cursor: default; background: var(--rg-disabled-bg); color: var(--rg-disabled-text); border-color: transparent; box-shadow: none; }
+.rg-button:focus-visible, .rg-chip:focus-visible { outline: 2px solid var(--rg-accent); outline-offset: 3px; }
+
+.rg-input { width: 100%; min-width: 0; min-height: 48px; padding: 10px 12px; border: 1px solid var(--rg-control-border); border-radius: var(--rg-radius-control); background: var(--rg-control); color: var(--rg-text); font: inherit; font-size: 16px; line-height: 1.6; transition: border-color 160ms ease, box-shadow 160ms ease; }
+.rg-input:focus-visible { outline: 2px solid var(--rg-accent); outline-offset: 3px; }
+.rg-input::placeholder { color: var(--rg-muted); opacity: 1; }
+.rg-visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+.rg-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.rg-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 14px; border: 1px solid var(--rg-control-border); border-radius: var(--rg-radius-pill); font: inherit; font-size: 14px; line-height: 1.4; background: var(--rg-control); color: var(--rg-text); cursor: pointer; transition: background-color var(--rg-fast) ease, border-color var(--rg-fast) ease; }
+.rg-chip[aria-pressed="true"] { background: var(--rg-chip-on-bg); border-color: var(--rg-chip-on-border); color: var(--rg-chip-on-text); font-weight: 700; }
+.chip-count { font-size: 12.5px; font-variant-numeric: tabular-nums; opacity: .85; }
+
+/* 値段入力 */
+.dock-brand { display: grid; gap: 0; min-width: 0; }
+.dock-brand .rg-muted { font-size: 13px; line-height: 1.5; font-variant-numeric: tabular-nums; }
+.price-wrap { position: relative; width: 100%; max-width: 460px; justify-self: center; }
+.price-input { min-height: 56px; padding: 8px 128px 8px 16px; border-radius: 14px; font-size: 28px; line-height: 1.3; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.price-input::placeholder { font-size: 17px; font-weight: 400; letter-spacing: 0; }
+.price-unit { position: absolute; right: 56px; top: 50%; transform: translateY(-50%); font-size: 14px; font-weight: 700; color: var(--rg-muted); pointer-events: none; }
+.price-clear { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; color: var(--rg-muted); cursor: pointer; }
+.price-clear:focus-visible { outline: 2px solid var(--rg-accent); outline-offset: 0; }
+.price-clear svg { width: 20px; height: 20px; }
+
+/* フィルター面 */
+.filter-surface { display: grid; gap: 12px; padding-block: 20px; }
+.status-line { min-height: 28px; display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: center; }
+
+/* 結果 */
+.results-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start; }
+.res-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.res-num { font-variant-numeric: tabular-nums; color: var(--rg-accent-text); }
+.res-count { font-size: 14px; font-weight: 400; color: var(--rg-muted); }
+.res-sec { scroll-margin-top: 150px; }
+.cat-title { margin-top: 20px; padding-bottom: 4px; font-size: 14px; line-height: 1.6; font-weight: 700; letter-spacing: .06em; color: var(--rg-accent-text); }
+.cat-title:first-of-type { margin-top: 12px; }
+.rg-list-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px 0; border-top: 1px solid var(--rg-border); }
+.rg-list-row > * { min-width: 0; }
+.rg-list-title { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; font-weight: 700; font-size: 17px; line-height: 1.6; overflow-wrap: anywhere; }
+.rg-list-copy { margin-top: 2px; font-size: 14px; color: var(--rg-muted); display: grid; gap: 2px; }
+.var { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; font-variant-numeric: tabular-nums; }
+.faint { font-size: 12.5px; opacity: .9; }
+.tag { display: inline-flex; align-items: center; padding: 0 9px; border-radius: 999px; font-size: 12.5px; font-weight: 700; line-height: 1.7; border: 1px solid transparent; white-space: nowrap; }
+.tag-n { color: var(--rg-muted); border-color: var(--rg-border); background: var(--rg-control); }
+.tag-b { color: var(--tag-bless-fg); background: var(--tag-bless-bg); }
+.tag-c { color: var(--tag-curse-fg); background: var(--tag-curse-bg); }
+.tag-hint { color: var(--rg-accent-text); border-color: var(--rg-control-border); font-weight: 400; }
+.judge { min-height: 44px; padding: 8px 14px; font-size: 14px; white-space: nowrap; }
+.judge svg { width: 18px; height: 18px; flex: none; }
+.hidden-line { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--rg-border); display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
+.empty-box { padding: 20px 0 8px; color: var(--rg-muted); }
+.empty-box strong { color: var(--rg-text); }
+
+.hero-empty { grid-column: 1 / -1; display: grid; gap: 16px; }
+.hero-empty p { max-width: 62ch; }
+.example-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+
+/* 判断済み */
+.judged-box > summary { cursor: pointer; font-weight: 700; font-size: 19px; line-height: 1.6; list-style: none; display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.judged-box > summary::-webkit-details-marker { display: none; }
+.judged-box > summary::before { content: ""; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform var(--rg-fast) ease; }
+.judged-box[open] > summary::before { transform: rotate(45deg); }
+.judged-box > summary:focus-visible { outline: 2px solid var(--rg-accent); outline-offset: 3px; border-radius: 8px; }
+.judged-body { margin-top: 12px; display: grid; gap: 12px; }
+
+/* 解説 */
+.rg-document-row { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 32px; padding: 24px 0; }
+.rg-document-row:first-child { padding-top: 0; }
+.rg-document-row:last-child { padding-bottom: 0; }
+.rg-document-row + .rg-document-row { border-top: 1px solid var(--rg-border); }
+.rg-copy { max-width: 72ch; min-width: 0; font-size: 16px; line-height: 1.95; overflow-wrap: anywhere; }
+.rg-copy p + p { margin-top: 12px; }
+
+/* ダイアログ */
+.rg-dialog { width: min(520px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); overflow: auto; padding: 28px; color: var(--rg-text); background: var(--rg-dialog-bg); border: 1px solid var(--rg-edge); border-radius: var(--rg-radius-surface); box-shadow: 0 20px 60px rgba(10, 30, 60, .25); font-family: inherit; font-size: 16px; line-height: 1.8; }
+.rg-dialog::backdrop { background: var(--rg-backdrop); }
+.rg-dialog .rg-heading { margin-bottom: 12px; }
+.rg-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+
+.rg-ambient { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: var(--amb-glow), var(--amb-bg); }
+.rg-ambient::before, .rg-ambient::after { content: ""; position: absolute; border-radius: 50%; border: 1px solid var(--amb-orb-edge); background: var(--amb-orb); }
+.rg-ambient::before { width: 1000px; height: 360px; right: -450px; top: 160px; transform: rotate(-35deg); }
+.rg-ambient::after { width: 550px; height: 250px; left: -280px; top: -160px; transform: rotate(-25deg); }
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .rg-surface { background: var(--rg-readable); -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px); }
+  .rg-nav { background: var(--rg-glass); -webkit-backdrop-filter: blur(24px) saturate(1.2); backdrop-filter: blur(24px) saturate(1.2); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .rg-theme :is(.rg-surface, .rg-nav) { background: var(--rg-solid-surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+@media (hover: hover) and (pointer: fine) {
+  .rg-button:hover:not(:disabled), .rg-chip:hover { border-color: var(--rg-hover-border); background: var(--rg-hover-bg); }
+  .rg-button--primary:hover:not(:disabled) { filter: brightness(1.08); }
+  .rg-button:active:not(:disabled) { transform: translateY(1px); }
+  .price-clear:hover { color: var(--rg-text); background: var(--rg-control); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rg-enter { animation: rg-enter var(--rg-enter) ease-out; }
+  @keyframes rg-enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rg-theme *, .rg-theme *::before, .rg-theme *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+@media (min-width: 701px) {
+  .rg-theme { padding-left: max(32px, env(safe-area-inset-left, 0px)); padding-right: max(32px, env(safe-area-inset-right, 0px)); padding-top: 14px; }
+  .rg-nav { top: calc(env(safe-area-inset-top, 0px) + 14px); }
+}
+@media (max-width: 900px) {
+  .results-grid { grid-template-columns: minmax(0, 1fr); }
+  .rg-document-row { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .res-sec { scroll-margin-top: 170px; }
+}
+@media (max-width: 700px) {
+  .rg-page { padding-block: 20px 32px; }
+  .rg-nav { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; padding: 10px 14px; border-radius: 24px; }
+  .price-wrap { grid-column: 1 / -1; grid-row: 2; max-width: none; }
+  .rg-surface { padding: 22px 18px; }
+  .filter-surface { padding-block: 18px; }
+  .rg-heading { font-size: 18px; }
+}
+@media (forced-colors: active) {
+  .rg-theme { color: CanvasText; background: Canvas; }
+  .rg-ambient { display: none; }
+  .rg-theme :is(.rg-surface, .rg-nav, .rg-dialog, .rg-button, .rg-input, .rg-chip) { background: Canvas; color: CanvasText; border: 1px solid ButtonBorder; box-shadow: none; backdrop-filter: none; }
+}
+
+[hidden] { display: none !important; }
+:root { color-scheme: light; }
+</style>
+</head>
+<body>
+
+<div class="rg-theme" id="app">
+  <div class="rg-ambient" aria-hidden="true"></div>
+
+  <header class="rg-nav">
+    <div class="dock-brand">
+      <h1 class="rg-brand">シレン6 値段識別</h1>
+      <span class="rg-muted" id="progress">判断済み 0 / 0</span>
+    </div>
+    <div class="price-wrap">
+      <label class="rg-visually-hidden" for="price">ゲーム内で見えた売値または買値（ギタン）</label>
+      <input class="rg-input price-input" id="price" type="text" inputmode="numeric" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" maxlength="9" placeholder="値段を入力（例 400）" aria-describedby="status">
+      <span class="price-unit" aria-hidden="true">ギタン</span>
+      <button class="price-clear" id="clear" type="button" aria-label="入力した値段を消す" hidden>
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>
+      </button>
+    </div>
+    <button class="rg-button" id="reset" type="button">リセット</button>
+  </header>
+
+  <main class="rg-page rg-stack">
+    <section class="rg-surface filter-surface" aria-label="絞り込みと状況">
+      <div class="rg-chips" id="chips" role="group" aria-label="アイテムの種別で絞り込む"></div>
+      <div class="status-line rg-muted" id="status" role="status" aria-live="polite"></div>
+    </section>
+
+    <div class="results-grid" id="results"></div>
+
+    <details class="rg-surface judged-box" id="judged-box">
+      <summary>判断済みのアイテム <span class="res-count" id="judged-count"></span></summary>
+      <div class="judged-body" id="judged-body"></div>
+    </details>
+
+    <section class="rg-surface" aria-label="価格の見方と対象範囲">
+      <div class="rg-document-row">
+        <h2 class="rg-heading">価格の見方</h2>
+        <div class="rg-copy">
+          <p>草と巻物が祝福されていると、買値・売値とも2倍になります。呪われている場合は87%（小数点以下切り捨て）です。呪いはすべての種別で候補に含めています。</p>
+          <p>杖は回数、壺は容量が1増えるごとに買値が100、売値が40上がります。候補の「回数」「容量」は、この加算を逆算した値です。</p>
+        </div>
+      </div>
+      <div class="rg-document-row">
+        <h2 class="rg-heading">対象と制限</h2>
+        <div class="rg-copy">
+          <p>対象は巻物・草と種・腕輪・杖・壺です。武器・盾・矢・石・食料・桃まん・お香は、値段で種類を見分けられないため含めていません。ぬれた巻物・雑草・脱出の巻物・白紙の巻物は最初から名前が分かるので除外しています。</p>
+          <p>胃縮小の腕輪・垂れ流しの腕輪・金垂れ流しの腕輪は常に呪われているため、呪い状態の値段だけを載せています。振って回数が減った杖など、一覧にない値段は表示されません。</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="rg-dialog" id="reset-dialog" aria-labelledby="reset-title">
+    <h2 class="rg-heading" id="reset-title">判断完了のマークを消しますか</h2>
+    <p id="reset-text"></p>
+    <div class="rg-actions">
+      <button class="rg-button" type="button" id="reset-cancel" autofocus>キャンセル</button>
+      <button class="rg-button rg-button--danger" type="button" id="reset-ok">リセットする</button>
+    </div>
+  </dialog>
+</div>
+
+<script>
+(function () {
+  var DATA = /*DATA*/;
+  var CATS = ['巻物', '草・種', '腕輪', '杖', '壺'];
+  var ST = { n: '通常', b: '祝福', c: '呪い' };
+  var STORE_KEY = 'shiren6-price-judged-v1';
+  var EXAMPLES = [400, 1000, 3500];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var keyOf = function (it) { return it.c + '|' + it.n; };
+  var fmt = function (n) { return n.toLocaleString('ja-JP'); };
+  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+
+  var byKey = {};
+  DATA.forEach(function (it) { byKey[keyOf(it)] = it; });
+
+  function load() { try { var a = JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+  function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(Array.from(judged))); } catch (e) {} }
+  var judged = new Set(load().filter(function (k) { return byKey[k]; }));
+
+  // 価格 → [アイテム, 一致した価格パターン] の索引（s: 売値, b: 買値）
+  var index = { s: new Map(), b: new Map() };
+  DATA.forEach(function (it, i) {
+    it.v.forEach(function (v, j) {
+      [['b', v[1]], ['s', v[2]]].forEach(function (p) {
+        var m = index[p[0]]; if (!m.has(p[1])) m.set(p[1], []);
+        m.get(p[1]).push([i, j]);
+      });
+    });
+  });
+
+  var cat = '';
+  var q = null;
+  var composing = false;
+  var lastJudged = null;
+
+  function matches(kind, price) {
+    var hits = index[kind].get(price) || [], map = new Map(), out = [];
+    hits.forEach(function (h) {
+      var i = h[0];
+      if (!map.has(i)) { var e = { it: DATA[i], vs: [] }; map.set(i, e); out.push(e); }
+      map.get(i).vs.push(DATA[i].v[h[1]]);
+    });
+    out.sort(function (a, b) { return DATA.indexOf(a.it) - DATA.indexOf(b.it); });
+    return out;
+  }
+
+  function variantHTML(v, it, kind) {
+    var other = kind === 's' ? '買値 ' + fmt(v[1]) : '売値 ' + fmt(v[2]);
+    var extra = '';
+    if (v[3] != null) {
+      extra = '<span>' + (it.c === '杖' ? '回数 ' : '容量 ') + v[3] + '</span>';
+      if (!v[4]) extra += '<span class="faint" title="入手時の最大値を超えています（増量後）">増量後</span>';
+    }
+    return '<span class="var"><span class="tag tag-' + v[0] + '">' + ST[v[0]] + '</span><span>' + other + '</span>' + extra + '</span>';
+  }
+
+  function rowHTML(e, kind) {
+    var key = keyOf(e.it), name = esc(e.it.n);
+    var hint = e.it.p ? '<span class="tag tag-hint" title="使うと「どれに使う？」の選択画面が出ます">使うと選択画面</span>' : '';
+    return '<li class="rg-list-row"><div><p class="rg-list-title"><span>' + name + '</span>' + hint + '</p>' +
+      '<div class="rg-list-copy">' + e.vs.map(function (v) { return variantHTML(v, e.it, kind); }).join('') + '</div></div>' +
+      '<button class="rg-button judge" type="button" data-judge="' + esc(key) + '" aria-label="「' + name + '」を判断完了にする">' +
+      '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M6.5 10.2l2.5 2.5 4.5-5"/></svg>判断完了</button></li>';
+  }
+
+  function sectionHTML(kind, price, id) {
+    var label = kind === 's' ? '売値' : '買値';
+    var all = matches(kind, price).filter(function (e) { return !cat || e.it.c === cat; });
+    var active = all.filter(function (e) { return !judged.has(keyOf(e.it)); });
+    var hidden = all.filter(function (e) { return judged.has(keyOf(e.it)); });
+    var html = '<section class="rg-surface res-sec rg-enter" id="' + id + '" aria-labelledby="' + id + '-h">' +
+      '<h2 class="rg-heading res-head" id="' + id + '-h">' + label + 'が <span class="res-num">' + fmt(price) + '</span> の場合 <span class="res-count">' + active.length + '件</span></h2>';
+    if (!active.length) {
+      html += '<p class="empty-box">' + (hidden.length ? '判断済みを除くと候補は残っていません。' : label + 'が <strong>' + fmt(price) + '</strong> になる未識別アイテムはありません。') + '</p>';
+    } else {
+      CATS.forEach(function (c) {
+        var rows = active.filter(function (e) { return e.it.c === c; });
+        if (!rows.length) return;
+        html += '<h3 class="cat-title">' + c + '（' + rows.length + '）</h3><ul>' + rows.map(function (e) { return rowHTML(e, kind); }).join('') + '</ul>';
+      });
+    }
+    if (hidden.length) {
+      html += '<p class="hidden-line rg-muted"><span>判断済みのため非表示：</span>' + hidden.map(function (e) {
+        return '<span>' + esc(e.it.n) + ' <button class="linkbtn" type="button" data-undo="' + esc(keyOf(e.it)) + '" aria-label="「' + esc(e.it.n) + '」の判断済みを取り消す">戻す</button></span>';
+      }).join('') + '</p>';
+    }
+    return { html: html + '</section>', count: active.length };
+  }
+
+  function setStatus(html) { $('status').innerHTML = html; }
+
+  function renderChips() {
+    var counts = {}, total = 0;
+    if (q != null) {
+      ['s', 'b'].forEach(function (k) {
+        matches(k, q).forEach(function (e) { if (!judged.has(keyOf(e.it))) { counts[e.it.c] = (counts[e.it.c] || 0) + 1; total++; } });
+      });
+    }
+    var chips = [['', 'すべて']].concat(CATS.map(function (c) { return [c, c]; }));
+    $('chips').innerHTML = chips.map(function (c) {
+      var n = q == null ? '' : '<span class="chip-count">' + (c[0] ? (counts[c[0]] || 0) : total) + '</span>';
+      return '<button class="rg-chip" type="button" data-cat="' + esc(c[0]) + '" aria-pressed="' + (cat === c[0]) + '">' + c[1] + n + '</button>';
+    }).join('');
+  }
+
+  function renderJudged() {
+    var keys = Array.from(judged).sort(function (a, b) { return DATA.indexOf(byKey[a]) - DATA.indexOf(byKey[b]); });
+    $('judged-count').textContent = keys.length + '件';
+    $('judged-body').innerHTML = keys.length
+      ? '<div class="rg-chips">' + keys.map(function (k) {
+          return '<button class="rg-chip" type="button" data-undo="' + esc(k) + '" aria-label="「' + esc(byKey[k].n) + '」の判断済みを取り消す"><span>' + esc(byKey[k].n) + '</span><span class="chip-count">' + esc(byKey[k].c) + '・戻す</span></button>';
+        }).join('') + '</div>'
+      : '<p class="rg-muted">まだありません。候補の「判断完了」を押すと、ここに並び、以後の候補から外れます。</p>';
+    $('progress').textContent = '判断済み ' + judged.size + ' / ' + DATA.length;
+    $('reset').disabled = judged.size === 0;
+  }
+
+  function render() {
+    renderChips();
+    renderJudged();
+    var box = $('results');
+    $('clear').hidden = $('price').value === '';
+    if (q == null) {
+      box.innerHTML = '<section class="rg-surface hero-empty rg-enter"><h2 class="rg-heading">値段を入力すると、候補が出ます</h2>' +
+        '<p>ゲームで見えた値段を上の欄に入力してください。売値だった場合と買値だった場合の候補を、並べて表示します。候補を見分けたら「判断完了」を押すと、そのアイテムは以後の候補から外れます。</p>' +
+        '<div class="example-row"><span class="rg-muted">例：</span>' + EXAMPLES.map(function (n) { return '<button class="rg-chip" type="button" data-example="' + n + '">' + fmt(n) + '</button>'; }).join('') + '</div></section>';
+      return;
+    }
+    var s = sectionHTML('s', q, 'sec-sell'), b = sectionHTML('b', q, 'sec-buy');
+    box.innerHTML = s.html + b.html;
+    var cur = $('status').getAttribute('data-keep');
+    if (!cur) setStatus('<button class="linkbtn" type="button" data-jump="sec-sell">売値の候補 ' + s.count + '件</button><button class="linkbtn" type="button" data-jump="sec-buy">買値の候補 ' + b.count + '件</button>');
+  }
+
+  function clearStatusKeep() { $('status').removeAttribute('data-keep'); }
+
+  function normalize(str) {
+    return str.replace(/[０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }).replace(/[^0-9]/g, '');
+  }
+  function readInput(finalize) {
+    var inp = $('price');
+    if (finalize) { var n = normalize(inp.value); if (n !== inp.value) inp.value = n; }
+    var digits = normalize(inp.value);
+    var next = digits === '' ? null : parseInt(digits, 10);
+    if (next === 0) next = null;
+    if (next !== q) clearStatusKeep();
+    q = next;
+    if (q == null) setStatus('');
+    render();
+  }
+
+  function judge(key) {
+    var btns = Array.from(document.querySelectorAll('[data-judge]'));
+    var at = btns.findIndex(function (b) { return b.getAttribute('data-judge') === key; });
+    judged.add(key); save();
+    lastJudged = key;
+    $('status').setAttribute('data-keep', '1');
+    setStatus('<span>「' + esc(byKey[key].n) + '」を判断完了にしました。</span><button class="linkbtn" type="button" data-undo="' + esc(key) + '">元に戻す</button>');
+    render();
+    var next = Array.from(document.querySelectorAll('[data-judge]'));
+    if (next.length) next[Math.min(Math.max(at, 0), next.length - 1)].focus({ preventScroll: true });
+    else $('price').focus({ preventScroll: true });
+  }
+  function undo(key) {
+    judged.delete(key); save();
+    clearStatusKeep();
+    setStatus('<span>「' + esc(byKey[key].n) + '」の判断済みを取り消しました。</span>');
+    $('status').setAttribute('data-keep', '1');
+    render();
+  }
+
+  var priceEl = $('price');
+  priceEl.addEventListener('compositionstart', function () { composing = true; });
+  priceEl.addEventListener('compositionend', function () { composing = false; readInput(true); });
+  priceEl.addEventListener('input', function (e) {
+    if (composing || e.isComposing) return;
+    readInput(true);
+  });
+  priceEl.addEventListener('focus', function () { setTimeout(function () { try { priceEl.select(); } catch (e) {} }, 0); });
+  priceEl.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); priceEl.blur(); } });
+
+  $('clear').addEventListener('click', function () { priceEl.value = ''; readInput(true); priceEl.focus(); });
+
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-judge],[data-undo],[data-cat],[data-example],[data-jump]');
+    if (!t) return;
+    if (t.hasAttribute('data-judge')) judge(t.getAttribute('data-judge'));
+    else if (t.hasAttribute('data-undo')) undo(t.getAttribute('data-undo'));
+    else if (t.hasAttribute('data-cat')) { cat = t.getAttribute('data-cat'); clearStatusKeep(); render(); var again = document.querySelector('[data-cat="' + cat + '"]'); if (again) again.focus({ preventScroll: true }); }
+    else if (t.hasAttribute('data-example')) { priceEl.value = t.getAttribute('data-example'); readInput(true); priceEl.focus({ preventScroll: true }); }
+    else if (t.hasAttribute('data-jump')) { var el = $(t.getAttribute('data-jump')); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  });
+
+  var dlg = $('reset-dialog');
+  $('reset').addEventListener('click', function () {
+    $('reset-text').textContent = '判断完了にした ' + judged.size + ' 件のマークをすべて消し、全アイテムを候補に戻します。この操作は元に戻せません。';
+    dlg.showModal();
+  });
+  $('reset-cancel').addEventListener('click', function () { dlg.close(); });
+  $('reset-ok').addEventListener('click', function () {
+    judged.clear(); save(); lastJudged = null; clearStatusKeep(); setStatus('');
+    dlg.close(); render(); $('price').focus({ preventScroll: true });
+  });
+  dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+  dlg.addEventListener('close', function () { if (document.activeElement === document.body) $('reset').disabled ? $('price').focus() : $('reset').focus(); });
+
+  render();
+})();
+</script>
+
+</body>
+</html>
