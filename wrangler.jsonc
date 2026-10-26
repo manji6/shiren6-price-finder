@@ -4,6 +4,9 @@
   "assets": {
     "directory": "./public"
   },
+  "observability": {
+    "enabled": true
+  },
   "routes": [
     { "pattern": "shiren6.amanohashi.date", "custom_domain": true }
   ]
