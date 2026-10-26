@@ -24,6 +24,8 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="シレン6 値段識別のイメージ。値段を入力すると、売値・買値それぞれの候補アイテムが並ぶ。">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@manji6">
+<meta name="twitter:creator" content="@manji6">
 <meta name="twitter:title" content="シレン6 値段識別｜売値・買値から未識別アイテムを判別">
 <meta name="twitter:description" content="風来のシレン6の値段識別ツール。店で見た売値・買値を入力するだけで、巻物・草・種・腕輪・杖・壺の候補を一覧表示。判断が済んだアイテムは候補から外せます。">
 <meta name="twitter:image" content="https://shiren6.amanohashi.date/og-image.png">
@@ -174,7 +176,12 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .res-num { font-variant-numeric: tabular-nums; color: var(--rg-accent-text); }
 .res-count { font-size: 14px; font-weight: 400; color: var(--rg-muted); }
 .res-sec { scroll-margin-top: 150px; }
-.cat-title { margin-top: 20px; padding-bottom: 4px; font-size: 14px; line-height: 1.6; font-weight: 700; letter-spacing: .06em; color: var(--rg-accent-text); }
+.cat-ico { flex: none; width: 34px; height: 34px; padding: 6px; border-radius: 10px; background: var(--rg-chip-on-bg); color: var(--rg-chip-on-text); }
+.cat-title .cat-ico { width: 30px; height: 30px; padding: 5px; border-radius: 9px; }
+.rg-chip .cat-ico { width: 24px; height: 24px; padding: 3px; border-radius: 8px; margin-left: -6px; }
+.rg-chip[aria-pressed="true"] .cat-ico { background: var(--rg-solid-surface); color: var(--rg-accent-text); }
+.nm { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
+.cat-title { display: flex; align-items: center; gap: 10px; margin-top: 20px; padding-bottom: 4px; font-size: 14px; line-height: 1.6; font-weight: 700; letter-spacing: .06em; color: var(--rg-accent-text); }
 .cat-title:first-of-type { margin-top: 12px; }
 .rg-list-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px 0; border-top: 1px solid var(--rg-border); }
 .rg-list-row > * { min-width: 0; }
@@ -203,7 +210,9 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .judged-box > summary::before { content: ""; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform var(--rg-fast) ease; }
 .judged-box[open] > summary::before { transform: rotate(45deg); }
 .judged-box > summary:focus-visible { outline: 2px solid var(--rg-accent); outline-offset: 3px; border-radius: 8px; }
-.judged-body { margin-top: 12px; display: grid; gap: 12px; }
+.judged-body { margin-top: 12px; display: grid; gap: 16px; }
+.judged-group { display: grid; gap: 8px; }
+.judged-group .cat-title { margin-top: 0; padding-bottom: 0; }
 
 /* 解説 */
 .site-foot { padding: 4px 4px 0; text-align: center; }
@@ -342,6 +351,14 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   var DATA = /*DATA*/;
   var CATS = ['巻物', '草・種', '腕輪', '杖', '壺'];
   var ST = { n: '通常', b: '祝福', c: '呪い' };
+  var ICONS = {
+    '巻物': '<path d="M8 4h11v13a3 3 0 0 1-3 3H6a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3h2z"/><path d="M12.5 9H16M12.5 12.5H16"/>',
+    '草・種': '<path d="M5 19c0-8.5 5-14 14-14 0 9-5.5 14-14 14z"/><path d="M5 19l8-8"/>',
+    '腕輪': '<circle cx="12" cy="14" r="6"/><path d="M12 2.5l2.3 2.7L12 8 9.7 5.2z"/>',
+    '杖': '<path d="M4.5 19.5L14 10"/><path d="M17.5 2.5l1.3 2.7 2.7 1.3-2.7 1.3-1.3 2.7-1.3-2.7-2.7-1.3 2.7-1.3z"/>',
+    '壺': '<path d="M8.5 4h7M9 6.5h6"/><path d="M9 6.5C5 9.5 4.5 15 8 19c.9 1 2.4 1.5 4 1.5s3.1-.5 4-1.5c3.5-4 3-9.5-1-12.5"/>'
+  };
+  function ico(c, cls) { return '<svg class="' + (cls || 'cat-ico') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONS[c] || '') + '</svg>'; }
   var STORE_KEY = 'shiren6-price-judged-v1';
   var EXAMPLES = [400, 1000, 3500];
 
@@ -397,7 +414,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   function rowHTML(e, kind) {
     var key = keyOf(e.it), name = esc(e.it.n);
     var hint = e.it.p ? '<span class="tag tag-hint" title="使うと「どれに使う？」の選択画面が出ます">使うと選択画面</span>' : '';
-    return '<li class="rg-list-row"><div><p class="rg-list-title"><span>' + name + '</span>' + hint + '</p>' +
+    return '<li class="rg-list-row"><div><p class="rg-list-title"><span class="nm">' + ico(e.it.c) + '<span>' + name + '</span></span>' + hint + '</p>' +
       '<div class="rg-list-copy">' + e.vs.map(function (v) { return variantHTML(v, e.it, kind); }).join('') + '</div></div>' +
       '<button class="rg-button judge" type="button" data-judge="' + esc(key) + '" aria-label="「' + name + '」を判断完了にする">' +
       '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="8"/><path d="M6.5 10.2l2.5 2.5 4.5-5"/></svg>判断完了</button></li>';
@@ -416,7 +433,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
       CATS.forEach(function (c) {
         var rows = active.filter(function (e) { return e.it.c === c; });
         if (!rows.length) return;
-        html += '<h3 class="cat-title">' + c + '（' + rows.length + '）</h3><ul>' + rows.map(function (e) { return rowHTML(e, kind); }).join('') + '</ul>';
+        html += '<h3 class="cat-title">' + ico(c) + c + '（' + rows.length + '）</h3><ul>' + rows.map(function (e) { return rowHTML(e, kind); }).join('') + '</ul>';
       });
     }
     if (hidden.length) {
@@ -439,18 +456,27 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
     var chips = [['', 'すべて']].concat(CATS.map(function (c) { return [c, c]; }));
     $('chips').innerHTML = chips.map(function (c) {
       var n = q == null ? '' : '<span class="chip-count">' + (c[0] ? (counts[c[0]] || 0) : total) + '</span>';
-      return '<button class="rg-chip" type="button" data-cat="' + esc(c[0]) + '" aria-pressed="' + (cat === c[0]) + '">' + c[1] + n + '</button>';
+      return '<button class="rg-chip" type="button" data-cat="' + esc(c[0]) + '" aria-pressed="' + (cat === c[0]) + '">' + (c[0] ? ico(c[0]) : '') + c[1] + n + '</button>';
     }).join('');
   }
 
   function renderJudged() {
     var keys = Array.from(judged).sort(function (a, b) { return DATA.indexOf(byKey[a]) - DATA.indexOf(byKey[b]); });
     $('judged-count').textContent = keys.length + '件';
-    $('judged-body').innerHTML = keys.length
-      ? '<div class="rg-chips">' + keys.map(function (k) {
-          return '<button class="rg-chip" type="button" data-undo="' + esc(k) + '" aria-label="「' + esc(byKey[k].n) + '」の判断済みを取り消す"><span>' + esc(byKey[k].n) + '</span><span class="chip-count">' + esc(byKey[k].c) + '・戻す</span></button>';
-        }).join('') + '</div>'
-      : '<p class="rg-muted">まだありません。候補の「判断完了」を押すと、ここに並び、以後の候補から外れます。</p>';
+    var html = '';
+    if (!keys.length) {
+      html = '<p class="rg-muted">まだありません。候補の「判断完了」を押すと、ここに並び、以後の候補から外れます。</p>';
+    } else {
+      html = '<p class="rg-muted">押すと判断済みを取り消し、候補に戻します。</p>';
+      CATS.forEach(function (c) {
+        var group = keys.filter(function (k) { return byKey[k].c === c; });
+        if (!group.length) return;
+        html += '<div class="judged-group"><h3 class="cat-title">' + ico(c) + c + '（' + group.length + '）</h3><div class="rg-chips">' + group.map(function (k) {
+          return '<button class="rg-chip" type="button" data-undo="' + esc(k) + '" aria-label="「' + esc(byKey[k].n) + '」の判断済みを取り消す">' + esc(byKey[k].n) + '</button>';
+        }).join('') + '</div></div>';
+      });
+    }
+    $('judged-body').innerHTML = html;
     $('progress').textContent = '判断済み ' + judged.size + ' / ' + DATA.length;
     $('reset').disabled = judged.size === 0;
   }
