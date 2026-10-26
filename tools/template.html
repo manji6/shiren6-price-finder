@@ -3,8 +3,32 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="風来のシレン6で、店で見た売値・買値から未識別アイテムの候補を絞り込む値段識別ツール。">
-<title>シレン6 値段識別</title>
+<title>シレン6 値段識別｜売値・買値から未識別アイテムを判別</title>
+<meta name="description" content="風来のシレン6の値段識別ツール。店で見た売値・買値を入力するだけで、巻物・草・種・腕輪・杖・壺の候補を一覧表示。判断が済んだアイテムは候補から外せます。">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://shiren6.amanohashi.date/">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#eaf1fa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1622" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="シレン6 値段識別">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:url" content="https://shiren6.amanohashi.date/">
+<meta property="og:title" content="シレン6 値段識別｜売値・買値から未識別アイテムを判別">
+<meta property="og:description" content="風来のシレン6の値段識別ツール。店で見た売値・買値を入力するだけで、巻物・草・種・腕輪・杖・壺の候補を一覧表示。判断が済んだアイテムは候補から外せます。">
+<meta property="og:image" content="https://shiren6.amanohashi.date/og-image.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="シレン6 値段識別のイメージ。値段を入力すると、売値・買値それぞれの候補アイテムが並ぶ。">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="シレン6 値段識別｜売値・買値から未識別アイテムを判別">
+<meta name="twitter:description" content="風来のシレン6の値段識別ツール。店で見た売値・買値を入力するだけで、巻物・草・種・腕輪・杖・壺の候補を一覧表示。判断が済んだアイテムは候補から外せます。">
+<meta name="twitter:image" content="https://shiren6.amanohashi.date/og-image.png">
+<meta name="twitter:image:alt" content="シレン6 値段識別のイメージ。値段を入力すると、売値・買値それぞれの候補アイテムが並ぶ。">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"シレン6 値段識別","url":"https://shiren6.amanohashi.date/","description":"風来のシレン6の値段識別ツール。店で見た売値・買値を入力するだけで、巻物・草・種・腕輪・杖・壺の候補を一覧表示。判断が済んだアイテムは候補から外せます。","applicationCategory":"GameApplication","operatingSystem":"Any","inLanguage":"ja","offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"}}</script>
 <style>
 /* Layout: 値段入力欄を上部に固定し、その下に「売値が一致」「買値が一致」の候補を並べる。配色はRose Glassの構造を青系に置き換え。 */
 @font-face { font-family: "RoseGlassSeedJP"; src: url(data:font/woff2;base64,/*FONT_REG*/) format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
@@ -182,6 +206,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .judged-body { margin-top: 12px; display: grid; gap: 12px; }
 
 /* 解説 */
+.site-foot { padding: 4px 4px 0; text-align: center; }
 .rg-document-row { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 32px; padding: 24px 0; }
 .rg-document-row:first-child { padding-top: 0; }
 .rg-document-row:last-child { padding-bottom: 0; }
@@ -297,6 +322,9 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
         </div>
       </div>
     </section>
+    <footer class="site-foot rg-muted">
+      <p>風来のシレン6の非公式ファンツールです。ゲーム内の名称・データの権利は、それぞれの権利者に帰属します。</p>
+    </footer>
   </main>
 
   <dialog class="rg-dialog" id="reset-dialog" aria-labelledby="reset-title">

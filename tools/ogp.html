@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Seed;src:url(fonts/LINESeedJP-Regular.woff2);font-weight:400}
+@font-face{font-family:Seed;src:url(fonts/LINESeedJP-Bold.woff2);font-weight:700}
+*{box-sizing:border-box;margin:0}
+html,body{width:1200px;height:630px;overflow:hidden}
+body{font-family:Seed,"Noto Sans JP",sans-serif;color:#20344b;background:linear-gradient(135deg,#e9f1fb,#d6e5f6 60%,#eef5fc);position:relative}
+.orb{position:absolute;border-radius:50%;border:1px solid #ffffffb0;background:linear-gradient(140deg,#ffffffb0,#9cc2ea65 40%,#7fb0e425 75%,#ffffff50)}
+.o1{width:1000px;height:360px;right:-420px;top:250px;transform:rotate(-35deg)}
+.o2{width:550px;height:250px;left:-280px;top:-150px;transform:rotate(-25deg)}
+.wrap{position:absolute;inset:0;padding:64px 72px;display:grid;grid-template-columns:1fr 470px;gap:56px;align-items:center}
+.eyebrow{font-size:24px;font-weight:700;color:#1d579a;letter-spacing:.08em}
+h1{margin-top:14px;font-size:84px;line-height:1.15;font-weight:700;letter-spacing:.01em}
+.lead{margin-top:26px;font-size:32px;line-height:1.6;color:#3d5169}
+.chips{margin-top:34px;display:flex;gap:12px;flex-wrap:wrap}
+.chip{padding:8px 20px;border-radius:999px;border:1px solid #6b9bd0;background:#d3e4f8;color:#174678;font-size:23px;font-weight:700}
+.card{background:#fbfdff;border:1px solid #fff;border-radius:28px;box-shadow:0 24px 60px rgba(30,70,125,.18),inset 0 1px 1px #fff;padding:30px 32px}
+.input{height:84px;border:2px solid #2a6cb8;border-radius:16px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-size:46px;font-weight:700;font-variant-numeric:tabular-nums}
+.input small{font-size:22px;color:#566a82}
+.sec{margin-top:24px;font-size:22px;font-weight:700;color:#1d579a}
+.sec b{color:#2a6cb8;font-variant-numeric:tabular-nums}
+.row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid rgba(38,84,140,.14);font-size:25px;font-weight:700}
+.row span{font-size:19px;font-weight:400;color:#566a82}
+.row i{font-style:normal;font-size:18px;font-weight:700;padding:3px 14px;border-radius:999px;border:1px solid #6b9bd0;color:#1d579a}
+</style></head><body>
+<div class="orb o1"></div><div class="orb o2"></div>
+<div class="wrap">
+  <div>
+    <p class="eyebrow">風来のシレン6 ファンツール</p>
+    <h1>シレン6<br>値段識別</h1>
+    <p class="lead">売値・買値を入れるだけで、<br>未識別アイテムの候補がわかる</p>
+    <div class="chips"><span class="chip">巻物</span><span class="chip">草・種</span><span class="chip">腕輪</span><span class="chip">杖</span><span class="chip">壺</span></div>
+  </div>
+  <div class="card">
+    <div class="input"><span>400</span><small>ギタン</small></div>
+    <p class="sec">売値が <b>400</b> の場合</p>
+    <div class="row">銀はがしの巻物<span>買値 1,000</span></div>
+    <div class="row">壺増大の巻物<span>買値 1,000</span></div>
+    <p class="sec" style="margin-top:14px">買値が <b>400</b> の場合</p>
+    <div class="row">天の恵みの巻物<span>売値 160</span></div>
+  </div>
+</div>
+</body></html>
