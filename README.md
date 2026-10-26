@@ -21,7 +21,7 @@
 
 ### カスタムドメイン
 
-ドメインのDNSがCloudflareで管理されている場合、ダッシュボードの Workers & Pages → 対象のWorker → Settings → Domains & Routes → Add → Custom domain で追加できます。設定ファイルで管理する場合は `wrangler.jsonc` に次を追加します。
+本番は `shiren6.amanohashi.date` で、`wrangler.jsonc` の `routes` で管理しています。ドメインのDNSがCloudflareで管理されている場合、ダッシュボードの Workers & Pages → 対象のWorker → Settings → Domains & Routes → Add → Custom domain で追加できます。設定ファイルで管理する場合は `wrangler.jsonc` に次を追加します。
 
 ```jsonc
 "routes": [{ "pattern": "shiren.example.com", "custom_domain": true }]
