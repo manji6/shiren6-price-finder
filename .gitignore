@@ -2,4 +2,4 @@ node_modules/
 .wrangler/
 .dev.vars
 tools/price.utf8.html
-tools/fonts/
+tools/fonts
