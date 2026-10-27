@@ -8,6 +8,7 @@
 | --- | --- |
 | `public/index.html` | 公開する単一HTML。データとフォント（サブセット）を内蔵 |
 | `wrangler.jsonc` | Cloudflare Workers（静的アセット配信）の設定 |
+| `public/changelog/index.html` | 更新履歴ページ（`tools/changelog.json` から生成） |
 | `tools/` | データ取得・HTML生成用のスクリプト |
 | `licenses/` | 同梱フォントのライセンス |
 
@@ -46,6 +47,17 @@ LINESEED_DIR=/path/to/fonts/ python3 assemble.py   # ../public/index.html を生
 ```
 
 `LINESEED_DIR` には `LINESeedJP-Regular.woff2` と `LINESeedJP-Bold.woff2` を置いたディレクトリを指定します。
+
+## 更新履歴ページの更新手順
+
+更新履歴は `tools/changelog.json` に、新しい日付を先頭にして書きます。書き換えたら、次のコマンドで `public/changelog/index.html` を再生成してください。
+
+```sh
+cd tools
+LINESEED_DIR=/path/to/fonts/ python3 make_changelog.py
+```
+
+ページは本番では `/changelog/` で公開されます。トップページ下部の「更新履歴」からリンクしています。
 
 ## ライセンス
 

@@ -211,7 +211,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .empty-box strong { color: var(--rg-text); }
 
 .hero-empty { grid-column: 1 / -1; display: grid; gap: 16px; }
-.hero-empty p { max-width: 62ch; }
+.hero-copy { display: grid; gap: 4px; }
+.hero-empty p { max-width: 60em; text-wrap: pretty; }
 .example-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
 
 /* 判断済み */
@@ -230,7 +231,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .rg-document-row:first-child { padding-top: 0; }
 .rg-document-row:last-child { padding-bottom: 0; }
 .rg-document-row + .rg-document-row { border-top: 1px solid var(--rg-border); }
-.rg-copy { max-width: 72ch; min-width: 0; font-size: 16px; line-height: 1.95; overflow-wrap: anywhere; }
+.rg-copy { max-width: 60em; text-wrap: pretty; min-width: 0; font-size: 16px; line-height: 1.95; overflow-wrap: anywhere; }
 .rg-copy p + p { margin-top: 12px; }
 
 /* ダイアログ */
@@ -346,6 +347,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
     </section>
     <footer class="site-foot rg-muted">
       <p>風来のシレン6の非公式ファンツールです。ゲーム内の名称・データの権利は、それぞれの権利者に帰属します。</p>
+      <p><a class="rg-link" href="/changelog/">更新履歴</a></p>
     </footer>
   </main>
 
@@ -513,8 +515,9 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
     var box = $('results');
     $('clear').hidden = $('price').value === '';
     if (q == null) {
-      box.innerHTML = '<section class="rg-surface hero-empty rg-enter"><h2 class="rg-heading">値段を入力すると、候補が出ます</h2>' +
-        '<p>ゲームで見えた値段を上の欄に入力してください。売値だった場合と買値だった場合の候補を、並べて表示します。候補を見分けたら「判断完了」を押すと、そのアイテムは以後の候補から外れます。</p>' +
+      box.innerHTML = '<section class="rg-surface hero-empty rg-enter"><h2 class="rg-heading">値段を入力するだけで瞬時にアイテム候補を表示</h2>' +
+        '<div class="hero-copy"><p>ゲームで見えた売値・買値を上の欄に入力すると、一致するアイテムを売値の場合と買値の場合に分けて表示します。</p>' +
+        '<p>見分けがついたアイテムは「判断完了」を押すと、以後の候補から外れます。</p></div>' +
         '<div class="example-row"><span class="rg-muted">例：</span>' + EXAMPLES.map(function (n) { return '<button class="rg-chip" type="button" data-example="' + n + '">' + fmt(n) + '</button>'; }).join('') + '</div></section>';
       return;
     }
