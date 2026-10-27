@@ -3,3 +3,4 @@ node_modules/
 .dev.vars
 tools/price.utf8.html
 tools/fonts
+__pycache__/
