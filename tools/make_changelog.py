@@ -38,4 +38,4 @@ head = (f'<meta name="description" content="{desc}">\n<link rel="canonical" href
         f'<meta property="og:title" content="更新履歴｜シレン6 値段識別">\n<meta property="og:description" content="{desc}">\n'
         f'<meta property="og:image" content="{BASE}/og-image.png">\n<meta name="twitter:card" content="summary_large_image">\n')
 os.makedirs('../public/changelog', exist_ok=True)
-print(write_page('更新履歴｜シレン6 値段識別', css, body, '../public/changelog/index.html', head, 'index, follow'))
+print(write_page('更新履歴｜シレン6 値段識別', css, body, '../public/changelog/index.html', head, 'index, follow', gtm=True))

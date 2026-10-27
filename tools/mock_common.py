@@ -24,9 +24,9 @@ CHECK = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width
 def svg(inner, cls='cat-ico'):
     return f'<svg class="{cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{inner}</svg>'
 
-def write_page(title, extra_css, body, out, head_extra='', robots='noindex'):
+def write_page(title, extra_css, body, out, head_extra='', robots='noindex', gtm=False):
     html = ('<!doctype html>\n<html lang="ja">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
-            f'<meta name="robots" content="{robots}">\n<title>{title}</title>\n{head_extra}<style>' + app_css() + extra_css + '</style>\n</head>\n<body>\n' + body + '\n</body>\n</html>\n')
+            + (open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'gtm.html'), encoding='utf8').read() if gtm else '') + f'<meta name="robots" content="{robots}">\n<title>{title}</title>\n{head_extra}<style>' + app_css() + extra_css + '</style>\n</head>\n<body>\n' + body + '\n</body>\n</html>\n')
     chars = set(html) | set(chr(c) for c in range(0x20, 0x7f)) | {chr(c) for c in range(0x3040, 0x3100)}
     kit = os.environ.get('LINESEED_DIR', 'fonts/')
     def sub(fn):

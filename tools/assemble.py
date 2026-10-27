@@ -25,6 +25,6 @@ def sub(fn):
     f=TTFont(kit+fn); s=subset.Subsetter(opt); s.populate(unicodes=[ord(c) for c in chars if ord(c)>0x1f]); s.subset(f)
     b=io.BytesIO(); f.flavor='woff2'; f.save(b); return base64.b64encode(b.getvalue()).decode()
 reg=sub('LINESeedJP-Regular.woff2'); bold=sub('LINESeedJP-Bold.woff2')
-out=text.replace('/*FONT_REG*/',reg).replace('/*FONT_BOLD*/',bold)
+out=text.replace('/*FONT_REG*/',reg).replace('/*FONT_BOLD*/',bold).replace('/*GTM*/',open('gtm.html',encoding='utf8').read().rstrip('\n'))
 open('../public/index.html','w',encoding='utf8').write(out)
 print(len(data),len(data_json),len(reg),len(bold),len(out))
