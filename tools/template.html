@@ -335,14 +335,14 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
         <h2 class="rg-heading">価格の見方</h2>
         <div class="rg-copy">
           <p>草と巻物が祝福されていると、買値・売値とも2倍になります。呪われている場合は87%（小数点以下切り捨て）です。呪いはすべての種別で候補に含めています。</p>
-          <p>杖は回数、壺は容量が1増えるごとに買値が100、売値が40上がります。候補の「回数」「容量」は、この加算を逆算した値です。</p>
+          <p>杖は回数0、壺は容量0のときの価格を基礎値として、回数・容量が1増えるごとに買値が100、売値が40上がります。候補の「回数」「容量」は、この加算から逆算した値です。</p>
         </div>
       </div>
       <div class="rg-document-row">
         <h2 class="rg-heading">対象と制限</h2>
         <div class="rg-copy">
           <p>対象は巻物・草と種・腕輪・杖・壺です。武器・盾・矢・石・食料・桃まん・お香は、値段で種類を見分けられないため含めていません。ぬれた巻物・雑草・脱出の巻物・白紙の巻物は最初から名前が分かるので除外しています。</p>
-          <p>胃縮小の腕輪・垂れ流しの腕輪・金垂れ流しの腕輪は常に呪われているため、呪い状態の値段だけを載せています。振って回数が減った杖など、一覧にない値段は表示されません。</p>
+          <p>胃縮小の腕輪・垂れ流しの腕輪・金垂れ流しの腕輪は常に呪われているため、呪い状態の値段だけを載せています。杖の回数は0〜7、壺の容量は入手時の下限から6までを対象にしています。</p>
         </div>
       </div>
     </section>
@@ -434,7 +434,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
     var extra = '';
     if (v[3] != null) {
       extra = '<span>' + (it.c === '杖' ? '回数 ' : '容量 ') + v[3] + '</span>';
-      if (!v[4]) extra += '<span class="faint" title="入手時の最大値を超えています（増量後）">増量後</span>';
+      if (v[4] === 0) extra += '<span class="faint" title="入手時の上限を超えています">入手時より多い</span>';
+      else if (v[4] === -1) extra += '<span class="faint" title="入手時の下限を下回っています">入手時より少ない</span>';
     }
     var label = v[0] === 'n' ? '' : '<span class="st-text st-text-' + v[0] + '">' + ico(null, 'st-glyph', STATE_GLYPH[v[0]], '2.2') + ST[v[0]] + ' ' + STATE_MULT[v[0]] + '</span>';
     return '<span class="var">' + label + '<span>' + other + '</span>' + extra + '</span>';

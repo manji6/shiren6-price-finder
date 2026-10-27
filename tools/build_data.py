@@ -28,7 +28,11 @@ for r in g[2:]:
         v.append(dict(st='c',b=bc,s=sc))
         items.append(dict(cat=cat,name=name,known=known,prompt=prompt,always=always,v=v))
 # --- staff / pot tables with capacity steps
-def stepped(t,cat,maxcap=None):
+def stepped(t,cat,maxcap=None,minlo=False):
+    """杖・壺の表。列番号 k は「回数（杖）／容量（壺）」そのもの。価格 = 買基 + 100×k（売値は +40×k）。
+    Wikiの「値段一覧表」のコメントにある「基礎値となる回数0のカラム」が根拠。
+    壺は入手時の下限(lo)から最大6まで、杖は表にある 0〜7 をすべて対象にする。
+    fl: 1=入手時の範囲内, 0=上限より多い, -1=下限より少ない"""
     g=parse(t); out=[]
     for r in g[2:]:
         name=r[0]['txt'][0]
@@ -36,17 +40,18 @@ def stepped(t,cat,maxcap=None):
         rng=nums(r[1]['txt'][0]); lo,hi=rng[0],rng[-1]
         v=[]
         for k,cell in enumerate(r[3:]):
-            n=lo+k
+            n=k
             if maxcap and n>maxcap: break
+            if minlo and n<lo: continue
             bs=nums(cell['txt'][0]); b,s=bs[0],bs[1]
             cs=nums(cell['txt'][1]) if cell['txt'][1] else [cur87(b),cur87(s)]
-            floor = n<=hi
-            v.append(dict(st='n',b=b,s=s,n=n,fl=floor))
-            v.append(dict(st='c',b=cs[0],s=cs[1],n=n,fl=floor))
+            fl = 1 if lo<=n<=hi else (0 if n>hi else -1)
+            v.append(dict(st='n',b=b,s=s,n=n,fl=fl))
+            v.append(dict(st='c',b=cs[0],s=cs[1],n=n,fl=fl))
         out.append(dict(cat=cat,name=name,known=False,prompt=False,always=False,lo=lo,hi=hi,v=v))
     return out
 items+=stepped(tabs[1],'杖')
-items+=stepped(tabs[2],'壺',6)
+items+=stepped(tabs[2],'壺',6,True)
 # cross-check with 杖/壺 detail pages' base values
 json.dump(items,open('items.json','w'),ensure_ascii=False,indent=0)
 from collections import Counter

@@ -9,7 +9,7 @@ for i in items:
     v=[]
     for x in i['v']:
         row=[x['st'],x['b'],x['s']]
-        if 'n' in x: row+=[x['n'],1 if x['fl'] else 0]
+        if 'n' in x: row+=[x['n'],x['fl']]
         v.append(row)
     d['v']=v
     data.append(d)
