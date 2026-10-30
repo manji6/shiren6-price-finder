@@ -24,10 +24,12 @@ html = html.replace('</style>', scene_vars + css + '\n</style>')
 amb = '<div class="rg-ambient" aria-hidden="true"></div>'
 assert html.count(amb) == 1
 html = html.replace(amb, '<div class="lg-scene" aria-hidden="true"></div>')
-switch = '''<div class="lg-switch" role="group" aria-label="背景の切り替え（モック）"><span>背景</span>
-<button type="button" data-scene="dungeon" aria-pressed="true">石畳の部屋</button><button type="button" data-scene="meadow" aria-pressed="false">草原</button><button type="button" data-scene="night" aria-pressed="false">夜の部屋</button></div>
-<script>(function(){var r=document.documentElement,b=document.querySelectorAll('.lg-switch [data-scene]');r.setAttribute('data-scene','dungeon');
-b.forEach(function(x){x.addEventListener('click',function(){r.setAttribute('data-scene',x.getAttribute('data-scene'));b.forEach(function(y){y.setAttribute('aria-pressed',y===x?'true':'false');});});});})();</script>
+switch = '''<div class="lg-switch" role="group" aria-label="モックの表示設定"><span>背景</span>
+<button type="button" data-scene="" aria-pressed="true">自動</button><button type="button" data-scene="dungeon" aria-pressed="false">石畳の部屋</button><button type="button" data-scene="meadow" aria-pressed="false">草原</button><button type="button" data-scene="night" aria-pressed="false">夜の部屋</button>
+</div>
+<script>(function(){var r=document.documentElement;
+function group(sel,attr){var b=document.querySelectorAll(sel);b.forEach(function(x){x.addEventListener('click',function(){var v=x.getAttribute(sel.match(/\\[(.+?)\\]/)[1]);if(v)r.setAttribute(attr,v);else r.removeAttribute(attr);b.forEach(function(y){y.setAttribute('aria-pressed',y===x?'true':'false');});});});}
+group('.lg-switch [data-scene]','data-scene');})();</script>
 '''
 assert html.count('</body>') == 1
 html = html.replace('</body>', switch + '</body>')
