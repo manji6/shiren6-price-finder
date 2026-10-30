@@ -8,6 +8,7 @@
 | --- | --- |
 | `public/index.html` | 公開する単一HTML。データとフォント（サブセット）を内蔵 |
 | `wrangler.jsonc` | Cloudflare Workers（静的アセット配信）の設定 |
+| `public/bg/` | 背景のドット絵（ライト=草原、ダーク=夜の部屋）。`tools/make_bg.py` で生成 |
 | `public/changelog/index.html` | 更新履歴ページ（`tools/changelog.json` から生成） |
 | `tools/` | データ取得・HTML生成用のスクリプト |
 | `licenses/` | 同梱フォントのライセンス |

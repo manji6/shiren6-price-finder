@@ -1,11 +1,11 @@
 """SFC（スーパーファミコン）風のドット絵の背景を生成する。すべてオリジナルの絵で、既存ゲームの画像は使っていない。
-実行: cd tools && python3 -I make_bg.py   → ../mocks/assets/bg-*.png（336x192, 16x16タイル21x12枚）
+実行: cd tools && python3 -I make_bg.py   → ../public/bg/{meadow,night}.png（336x192, 16x16タイル21x12枚）
 CSS側で image-rendering: pixelated により拡大して使う。"""
 import os, random
 from PIL import Image, ImageDraw
 
 T = 16; W, H = 21, 12
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'mocks', 'assets')
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'public', 'bg')
 os.makedirs(OUT, exist_ok=True)
 
 def hexc(h): h = h.lstrip('#'); return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
@@ -204,7 +204,6 @@ def meadow():
     return im
 
 if __name__ == '__main__':
-    for name, im in [('dungeon', dungeon()), ('meadow', meadow()), ('night', dungeon(night=True))]:
-        im.save(os.path.join(OUT, f'bg-{name}.png'), optimize=True)
-        im.resize((W * T * 3, H * T * 3), Image.NEAREST).save(os.path.join(OUT, f'_preview-{name}.png'))
+    for name, im in [('meadow', meadow()), ('night', dungeon(night=True))]:
+        im.save(os.path.join(OUT, f'{name}.png'), optimize=True)
         print(name, im.size)

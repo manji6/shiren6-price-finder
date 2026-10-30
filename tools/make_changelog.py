@@ -16,7 +16,7 @@ rows = ''.join(
     f'<div class="rg-copy"><ul class="changes">{"".join("<li>" + html.escape(i) + "</li>" for i in e["items"])}</ul></div></div>'
     for e in entries)
 
-body = ('<div class="rg-theme"><div class="rg-ambient" aria-hidden="true"></div>'
+body = ('<div class="rg-theme"><div class="lg-scene" aria-hidden="true"></div>'
         '<header class="rg-nav"><div class="dock-brand"><h1 class="rg-brand">更新履歴</h1><span class="rg-muted">シレン6 値段識別</span></div><span></span>'
         '<a class="rg-button" href="/">値段識別に戻る</a></header>'
         f'<main class="rg-page rg-stack"><section class="rg-surface" aria-label="更新履歴">{rows}</section>'
@@ -30,8 +30,10 @@ a.rg-button { text-decoration: none; }
 desc = 'シレン6 値段識別の更新履歴です。'
 head = (f'<meta name="description" content="{desc}">\n<link rel="canonical" href="{BASE}/changelog/">\n'
         '<meta name="color-scheme" content="light dark">\n'
-        '<meta name="theme-color" content="#eaf1fa" media="(prefers-color-scheme: light)">\n'
-        '<meta name="theme-color" content="#0d1622" media="(prefers-color-scheme: dark)">\n'
+        '<meta name="theme-color" content="#4a9a46" media="(prefers-color-scheme: light)">\n'
+        '<meta name="theme-color" content="#101a3a" media="(prefers-color-scheme: dark)">\n'
+        '<link rel="preload" as="image" href="/bg/meadow.png" media="(prefers-color-scheme: light)">\n'
+        '<link rel="preload" as="image" href="/bg/night.png" media="(prefers-color-scheme: dark)">\n'
         '<link rel="icon" href="/favicon.svg" type="image/svg+xml">\n<link rel="apple-touch-icon" href="/apple-touch-icon.png">\n'
         '<meta property="og:type" content="website">\n<meta property="og:locale" content="ja_JP">\n'
         f'<meta property="og:site_name" content="シレン6 値段識別">\n<meta property="og:url" content="{BASE}/changelog/">\n'
