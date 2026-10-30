@@ -4,3 +4,4 @@ node_modules/
 tools/price.utf8.html
 tools/fonts
 __pycache__/
+mocks/assets/_preview-*.png
