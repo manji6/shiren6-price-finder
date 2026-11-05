@@ -71,11 +71,14 @@ html[data-jm="B"][data-jb="1"] .jm-seg { display: inline-flex; }
 html[data-jm="B"][data-jb="2"] .jm-btn2 { display: inline-flex; }
 html[data-jm="B"][data-jb="3"] .jm-tabs3 { display: inline-flex; }
 html:not([data-jm="B"]) .jm-bar-b { display: none; }
-html[data-jm="B"][data-jb="1"] .price-input { padding-right: 168px; }
+html[data-jm="B"][data-jb="1"] .price-input { padding-right: 134px; }
+/* ×（消す）ボタンが出ている間だけ、スイッチをその分左へずらす。出ていない時は右端に寄せて、余白をなくす */
+.price-wrap:has(.price-clear:not([hidden])) .price-input { padding-right: 186px; }
 html[data-jm="B"][data-jb="2"] .price-input { padding-right: 184px; }
 html[data-jm="B"][data-jb="3"] .price-input { padding-right: 64px; }
-.jm-seg { position: absolute; right: 54px; top: 50%; transform: translateY(-50%); z-index: 2; padding: 3px; gap: 2px; border-radius: 999px;
+.jm-seg { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); z-index: 2; padding: 3px; gap: 2px; border-radius: 999px;
   background: var(--lg-glass-b); border: 1px solid var(--lg-edge-soft); box-shadow: inset 0 1px 2px rgba(10, 24, 60, .12); }
+.price-clear:not([hidden]) ~ .jm-seg { right: 58px; }
 .jm-seg button, .jm-tabs3 button { appearance: none; min-height: 34px; padding: 2px 14px; border: 0; border-radius: 999px; background: transparent; color: var(--rg-muted); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: background-color .15s ease, color .15s ease; }
 .jm-seg button[aria-pressed="true"], .jm-tabs3 button[aria-pressed="true"] { background: linear-gradient(165deg, var(--lg-pressed-a), var(--lg-pressed-b)); color: var(--rg-chip-on-text); box-shadow: inset 0 1px 0 var(--lg-spec), 0 2px 8px rgba(42, 108, 184, .25); }
 .jm-seg button:focus-visible, .jm-tabs3 button:focus-visible { outline: 2px solid var(--rg-accent); outline-offset: 1px; }
@@ -83,6 +86,6 @@ html[data-jm="B"][data-jb="3"] .price-input { padding-right: 64px; }
 .jm-ico { display: inline-grid; place-items: center; min-width: 28px; height: 26px; padding: 0 6px; border-radius: 999px; font-size: 12px; font-weight: 700; background: linear-gradient(165deg, var(--lg-pressed-a), var(--lg-pressed-b)); color: var(--rg-chip-on-text); }
 .jm-tabs3 { grid-column: 2; grid-row: 2; justify-self: center; padding: 3px; gap: 2px; border-radius: 999px; background: var(--lg-glass-b); border: 1px solid var(--lg-edge-soft); }
 .jm-tabs3 button { min-height: 32px; font-size: 13px; padding-inline: 16px; }
-@media (max-width: 700px) { .jm-tabs3 { grid-column: 1 / -1; grid-row: 3; justify-self: stretch; } .jm-tabs3 button { flex: 1; } html[data-jm="B"][data-jb="1"] .price-input { padding-right: 150px; } .jm-seg button { padding-inline: 11px; } }
+@media (max-width: 700px) { .jm-tabs3 { grid-column: 1 / -1; grid-row: 3; justify-self: stretch; } .jm-tabs3 button { flex: 1; } html[data-jm="B"][data-jb="1"] .price-input { padding-right: 126px; } .price-wrap:has(.price-clear:not([hidden])) .price-input { padding-right: 178px; } .jm-seg button { padding-inline: 12px; } }
 html[data-jm="B"][data-jb="3"] .jm-sugg { top: calc(100% + 54px); }
 @media (max-width: 700px) { html[data-jm="B"][data-jb="3"] .jm-sugg { top: calc(100% + 54px); } }

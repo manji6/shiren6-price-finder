@@ -124,7 +124,9 @@
   btn2.addEventListener('click', function () { setMode(!nameMode); });
   syncUI();
   var bComposing = false;
+  var clearBtn = $('#clear');
   function suggest() {
+    if (nameMode) clearBtn.hidden = !price.value;   // 名前モードでも、入力があるときは×（消す）を出す
     var v = price.value.trim();
     if (!v) { if (nameMode) { sugg.hidden = false; sugg.innerHTML = HINT; } else sugg.hidden = true; return; }
     var all = A.items.filter(function (i) { return !A.isJudged(i.key) && hit(i, v); })
@@ -136,6 +138,7 @@
   function pick(key) { A.set(key, true); price.value = ''; price.focus(); suggest(); }
   sugg.addEventListener('click', function (e) { var t = e.target.closest('[data-jm-pick]'); if (t) pick(t.getAttribute('data-jm-pick')); });
   price.addEventListener('focus', function () { if (nameMode) suggest(); });
+  clearBtn.addEventListener('click', function () { if (nameMode) setTimeout(function () { price.focus(); suggest(); }, 0); });
   // 名前モードの間は、価格の検索（数字だけに整える処理）に入力を渡さない。変換の途中でも、入力に合わせて候補を出す
   ['input', 'compositionstart', 'compositionend', 'keydown'].forEach(function (ev) {
     window.addEventListener(ev, function (e) {
