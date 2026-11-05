@@ -17,6 +17,8 @@ import base64
 def bg(name): return 'url(data:image/png;base64,' + base64.b64encode(open(os.path.join(root, 'public/bg', name + '.png'), 'rb').read()).decode() + ')'
 html = html.replace('url(/bg/meadow.png)', bg('meadow')).replace('url(/bg/night.png)', bg('night'))
 assert html.count('</style>') == 1 and html.count('</body>') == 1
-html = html.replace('</style>', css + '\n</style>').replace('</body>', '<script>' + js + '</script>\n</body>')
+import json
+readings = json.load(open(os.path.join(here, 'readings.json'), encoding='utf8'))   # 名前 → 読み仮名（ひらがな）。make_readings.py で生成
+html = html.replace('</style>', css + '\n</style>').replace('</body>', '<script>window.JM_READINGS=' + json.dumps(readings, ensure_ascii=False) + ';</script><script>' + js + '</script>\n</body>')
 open(os.path.join(root, 'mocks/judge-input.html'), 'w', encoding='utf8').write(html)
 print(len(html))

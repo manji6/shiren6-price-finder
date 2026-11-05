@@ -440,10 +440,7 @@ html[data-jm="B"] .jm-b-only { display: inline-flex; }
 
 /* B: 入力欄の切替（123 ⇄ 名前） */
 .price-wrap { position: relative; }
-.jm-mode { position: absolute; right: 58px; top: 50%; transform: translateY(-50%); min-height: 36px !important; padding: 2px 12px !important; font-size: 13px !important; gap: 4px; z-index: 2; }
-.jm-mode[aria-pressed="true"] { background: linear-gradient(165deg, var(--lg-pressed-a), var(--lg-pressed-b)) !important; color: var(--rg-chip-on-text); }
 html[data-jm="B"] .price-unit { display: none; }
-html[data-jm="B"] .price-input { padding-right: 150px; }
 html[data-jm="B"].jm-name .price-input { font-size: 22px; letter-spacing: 0; }
 .jm-sugg { position: absolute; left: 0; right: 0; top: calc(100% + 10px); z-index: 12; display: grid; gap: 2px; padding: 8px; border-radius: 26px;
   /* ナビ（ぼかし付き）の中に置くため、入れ子のぼかしは効かない。背景は不透明にして、文字を読みやすくする */
@@ -464,7 +461,7 @@ html[data-jm="B"].jm-name .price-input { font-size: 22px; letter-spacing: 0; }
 .jm-panel .jm-body { margin-top: 12px; }
 
 /* モックの切り替えバー */
-.jm-bar { position: fixed; z-index: 40; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); display: flex; align-items: center; gap: 6px; padding: 6px; border-radius: 999px; width: max-content; max-width: calc(100vw - 24px);
+.jm-bar { flex-wrap: wrap; justify-content: center; position: fixed; z-index: 40; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); display: flex; align-items: center; gap: 6px; padding: 6px; border-radius: 28px; width: max-content; max-width: calc(100vw - 24px);
   background: linear-gradient(165deg, var(--lg-glass-a), var(--lg-glass-b)); border: 1px solid var(--lg-edge);
   -webkit-backdrop-filter: blur(22px) saturate(1.9); backdrop-filter: blur(22px) saturate(1.9); box-shadow: inset 0 1px 0 var(--lg-spec), 0 12px 32px var(--lg-shadow);
   font-family: "RoseGlassSeedJP", "Hiragino Sans", "Noto Sans JP", sans-serif; }
@@ -474,6 +471,28 @@ html[data-jm="B"].jm-name .price-input { font-size: 22px; letter-spacing: 0; }
 .jm-bar button:focus-visible { outline: 2px solid var(--rg-accent); outline-offset: 2px; }
 @media (max-width: 640px) { .jm-bar span { display: none; } .jm-bar button { padding-inline: 11px; font-size: 13px; min-height: 36px; } }
 body { padding-bottom: 80px; }
+
+/* B: 切り替えの見せ方 3案（① 2択スイッチ ／ ② 文で書いたボタン ／ ③ 入力欄の下のタブ） */
+.jm-seg, .jm-btn2, .jm-tabs3 { display: none; }
+html[data-jm="B"][data-jb="1"] .jm-seg { display: inline-flex; }
+html[data-jm="B"][data-jb="2"] .jm-btn2 { display: inline-flex; }
+html[data-jm="B"][data-jb="3"] .jm-tabs3 { display: inline-flex; }
+html:not([data-jm="B"]) .jm-bar-b { display: none; }
+html[data-jm="B"][data-jb="1"] .price-input { padding-right: 168px; }
+html[data-jm="B"][data-jb="2"] .price-input { padding-right: 184px; }
+html[data-jm="B"][data-jb="3"] .price-input { padding-right: 64px; }
+.jm-seg { position: absolute; right: 54px; top: 50%; transform: translateY(-50%); z-index: 2; padding: 3px; gap: 2px; border-radius: 999px;
+  background: var(--lg-glass-b); border: 1px solid var(--lg-edge-soft); box-shadow: inset 0 1px 2px rgba(10, 24, 60, .12); }
+.jm-seg button, .jm-tabs3 button { appearance: none; min-height: 34px; padding: 2px 14px; border: 0; border-radius: 999px; background: transparent; color: var(--rg-muted); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: background-color .15s ease, color .15s ease; }
+.jm-seg button[aria-pressed="true"], .jm-tabs3 button[aria-pressed="true"] { background: linear-gradient(165deg, var(--lg-pressed-a), var(--lg-pressed-b)); color: var(--rg-chip-on-text); box-shadow: inset 0 1px 0 var(--lg-spec), 0 2px 8px rgba(42, 108, 184, .25); }
+.jm-seg button:focus-visible, .jm-tabs3 button:focus-visible { outline: 2px solid var(--rg-accent); outline-offset: 1px; }
+.jm-btn2 { position: absolute; right: 54px; top: 50%; transform: translateY(-50%); z-index: 2; min-height: 38px !important; padding: 2px 14px 2px 6px !important; font-size: 13px !important; gap: 8px !important; }
+.jm-ico { display: inline-grid; place-items: center; min-width: 28px; height: 26px; padding: 0 6px; border-radius: 999px; font-size: 12px; font-weight: 700; background: linear-gradient(165deg, var(--lg-pressed-a), var(--lg-pressed-b)); color: var(--rg-chip-on-text); }
+.jm-tabs3 { grid-column: 2; grid-row: 2; justify-self: center; padding: 3px; gap: 2px; border-radius: 999px; background: var(--lg-glass-b); border: 1px solid var(--lg-edge-soft); }
+.jm-tabs3 button { min-height: 32px; font-size: 13px; padding-inline: 16px; }
+@media (max-width: 700px) { .jm-tabs3 { grid-column: 1 / -1; grid-row: 3; justify-self: stretch; } .jm-tabs3 button { flex: 1; } html[data-jm="B"][data-jb="1"] .price-input { padding-right: 150px; } .jm-seg button { padding-inline: 11px; } }
+html[data-jm="B"][data-jb="3"] .jm-sugg { top: calc(100% + 54px); }
+@media (max-width: 700px) { html[data-jm="B"][data-jb="3"] .jm-sugg { top: calc(100% + 54px); } }
 
 </style>
 </head>
@@ -805,15 +824,64 @@ body { padding-bottom: 80px; }
 })();
 </script>
 
-<script>(function () {
+<script>window.JM_READINGS={"遠投の腕輪": "えんとうのうでわ", "混乱の巻物": "こんらんのまきもの", "薬草": "やくそう", "ヘタ投げの腕輪": "へたなげのうでわ", "バクスイの巻物": "ばくすいのまきもの", "毒草": "どくそう", "ボヨヨンの腕輪": "ぼよよんのうでわ", "ゾワゾワの巻物": "ぞわぞわのまきもの", "暴走の種": "ぼうそうのたね", "連射の腕輪": "れんしゃのうでわ", "真空斬りの巻物": "しんくうぎりのまきもの|しんくうきりのまきもの", "混乱草": "こんらんそう|こんらんくさ", "諸刃の腕輪": "もろはのうでわ|もろばのうでわ", "識別の巻物": "しきべつのまきもの", "睡眠草": "すいみんそう|すいみんくさ", "痛恨の腕輪": "つうこんのうでわ", "銀封印の巻物": "ぎんふういんのまきもの", "目つぶし草": "めつぶしそう|めつぶしくさ", "高飛びの腕輪": "たかとびのうでわ", "生物集合の巻物": "せいぶつしゅうごうのまきもの", "めぐすり草": "めぐすりそう|めぐすりくさ", "爆発の腕輪": "ばくはつのうでわ", "道具寄せの巻物": "どうぐよせのまきもの", "すばやさ草": "すばやさそう|すばやさくさ", "垂れ流しの腕輪": "たれながしのうでわ", "困った時の巻物": "こまったときのまきもの", "パワーアップ草": "ぱわーあっぷそう|ぱわーあっぷくさ", "金垂れ流しの腕輪": "きんたれながしのうでわ", "天の恵みの巻物": "てんのめぐみのまきもの|あめのめぐみのまきもの", "弟切草": "おとぎりそう", "罠増しの腕輪": "わなましのうでわ", "地の恵みの巻物": "ちのめぐみのまきもの|つちのめぐみのまきもの", "高飛び草": "たかとびそう|たかとびくさ", "ちからの腕輪": "ちからのうでわ", "メッキの巻物": "めっきのまきもの", "くねくね草": "くねくねそう|くねくねくさ", "睡眠よけの腕輪": "すいみんよけのうでわ", "印増大の巻物": "いんぞうだいのまきもの", "いやし草": "いやしそう|いやしくさ", "気配察知の腕輪": "けはいさっちのうでわ", "印消しの巻物": "いんけしのまきもの", "かぐわし草": "かぐわしそう|かぐわしくさ", "道具感知の腕輪": "どうぐかんちのうでわ", "おにぎりの巻物": "おにぎりのまきもの", "胃拡張の種": "いかくちょうのたね", "大砲強化の腕輪": "たいほうきょうかのうでわ", "おはらいの巻物": "おはらいのまきもの", "胃縮小の種": "いしゅくしょうのたね", "呪いよけの腕輪": "のろいよけのうでわ", "あかりの巻物": "あかりのまきもの", "ドラゴン草": "どらごんそう|どらごんくさ", "水グモの腕輪": "みずぐものうでわ", "迷子の巻物": "まいごのまきもの", "復活の草": "ふっかつのくさ", "浮遊の腕輪": "ふゆうのうでわ", "罠消しの巻物": "わなけしのまきもの", "無敵草": "むてきそう|むてきくさ", "魔物呼びの腕輪": "まものよびのうでわ", "銀はがしの巻物": "ぎんはがしのまきもの", "不幸の種": "ふこうのたね", "胃拡張の腕輪": "いかくちょうのうでわ", "壺増大の巻物": "つぼぞうだいのまきもの", "命の草": "いのちのくさ", "胃縮小の腕輪": "いしゅくしょうのうでわ", "吸い出しの巻物": "すいだしのまきもの", "毒消し草": "どくけしそう|どくけしくさ", "弾きよけの腕輪": "はじきよけのうでわ", "呪いの巻物": "のろいのまきもの", "ちからの草": "ちからのくさ", "値切りの腕輪": "ねぎりのうでわ", "罠の巻物": "わなのまきもの", "しあわせ草": "しあわせそう|しあわせくさ", "しあわせの腕輪": "しあわせのうでわ", "水がれの巻物": "みずがれのまきもの", "天使の種": "てんしのたね", "混乱よけの腕輪": "こんらんよけのうでわ", "魔物部屋の巻物": "まものべやのまきもの|まものへやのまきもの", "超不幸の種": "ちょうふこうのたね", "回復の腕輪": "かいふくのうでわ", "大部屋の巻物": "おおべやのまきもの", "錆よけの腕輪": "さびよけのうでわ", "バクチの巻物": "ばくちのまきもの", "透視の腕輪": "とうしのうでわ", "くちなしの巻物": "くちなしのまきもの", "裏道の腕輪": "うらみちのうでわ", "拾えずの巻物": "ひろえずのまきもの", "すれちがいの腕輪": "すれちがいのうでわ", "敵加速の巻物": "てきかそくのまきもの", "毒消しの腕輪": "どくけしのうでわ", "壁抜けの腕輪": "かべぬけのうでわ", "聖域の巻物": "せいいきのまきもの", "忍び足の腕輪": "しのびあしのうでわ", "罠師の腕輪": "わなしのうでわ", "全滅の巻物": "ぜんめつのまきもの", "鑑定師の腕輪": "かんていしのうでわ", "ねだやしの巻物": "ねだやしのまきもの", "百発百中の腕輪": "ひゃっぱつひゃくちゅうのうでわ", "ただの杖": "ただのつえ", "吹き飛ばしの杖": "ふきとばしのつえ", "場所がえの杖": "ばしょがえのつえ", "飛びつきの杖": "とびつきのつえ", "転ばぬ先の杖": "ころばぬさきのつえ", "かなしばりの杖": "かなしばりのつえ", "封印の杖": "ふういんのつえ", "感電の杖": "かんでんのつえ", "トンネルの杖": "とんねるのつえ", "土塊の杖": "つちくれのつえ|どかいのつえ", "鈍足の杖": "どんそくのつえ", "加速の杖": "かそくのつえ", "導きの杖": "みちびきのつえ", "痛み分けの杖": "いたみわけのつえ", "ガイコツまどうの杖": "がいこつまどうのつえ", "一時しのぎの杖": "いちじしのぎのつえ", "幸せの杖": "しあわせのつえ", "不幸の杖": "ふこうのつえ", "身代わりの杖": "みがわりのつえ", "桃まんの杖": "ももまんのつえ", "保存の壺": "ほぞんのつぼ", "識別の壺": "しきべつのつぼ", "変化の壺": "へんげのつぼ|へんかのつぼ", "ただの壺": "ただのつぼ", "やりすごしの壺": "やりすごしのつぼ", "換金の壺": "かんきんのつぼ", "手封じの壺": "てふうじのつぼ", "割れない壺": "われないつぼ", "倉庫の壺": "そうこのつぼ", "底抜けの壺": "そこぬけのつぼ", "おはらいの壺": "おはらいのつぼ", "呪いの壺": "のろいのつぼ", "背中の壺": "せなかのつぼ", "トドの壺": "とどのつぼ", "水鉄砲の壺": "みずでっぽうのつぼ", "魔物の壺": "まもののつぼ", "ビックリの壺": "びっくりのつぼ", "笑いの壺": "わらいのつぼ", "合成の壺": "ごうせいのつぼ", "強化の壺": "きょうかのつぼ", "弱化の壺": "じゃっかのつぼ"};</script><script>(function () {
   var A = window.ShirenApp; if (!A) return;
   var root = document.documentElement;
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   var CHECK = '<svg class="jm-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></svg>';
-  // 検索用: 全角半角をそろえ、カタカナをひらがなにして比べる
-  var norm = function (s) { return s.normalize('NFKC').toLowerCase().replace(/[ァ-ヶ]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0x60); }); };
-  var hit = function (it, q) { return !q || norm(it.n).indexOf(norm(q)) >= 0; };
+  // ---- 検索: 漢字の名前でも、読み（ひらがな）やローマ字でヒットさせる ----
+  var R = window.JM_READINGS || {};
+  // 全角半角をそろえ、カタカナをひらがなにし、長音（ー）と空白は無視する
+  var kn = function (s) { return s.normalize('NFKC').toLowerCase().replace(/[ァ-ヶ]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0x60); }).replace(/[ー\s]/g, ''); };
+  var RM = {};
+  (function () {
+    var rows = { '': 'あいうえお', k: 'かきくけこ', s: 'さしすせそ', t: 'たちつてと', n: 'なにぬねの', h: 'はひふへほ', m: 'まみむめも', r: 'らりるれろ', g: 'がぎぐげご', z: 'ざじずぜぞ', d: 'だぢづでど', b: 'ばびぶべぼ', p: 'ぱぴぷぺぽ' };
+    Object.keys(rows).forEach(function (c) { for (var i = 0; i < 5; i++) RM[c + 'aiueo'[i]] = rows[c][i]; });
+    RM.ya = 'や'; RM.yu = 'ゆ'; RM.yo = 'よ'; RM.wa = 'わ'; RM.wo = 'を';
+    var small = { a: 'ゃ', u: 'ゅ', o: 'ょ' };
+    ['k', 'g', 's', 'z', 't', 'd', 'n', 'h', 'b', 'p', 'm', 'r'].forEach(function (c) { ['a', 'u', 'o'].forEach(function (v) { RM[c + 'y' + v] = rows[c][1] + small[v]; }); });
+    var alt = { si: 'し', shi: 'し', ti: 'ち', chi: 'ち', tu: 'つ', tsu: 'つ', hu: 'ふ', fu: 'ふ', zi: 'じ', ji: 'じ', sha: 'しゃ', shu: 'しゅ', sho: 'しょ', she: 'しぇ', cha: 'ちゃ', chu: 'ちゅ', cho: 'ちょ', che: 'ちぇ', ja: 'じゃ', ju: 'じゅ', jo: 'じょ', jya: 'じゃ', jyu: 'じゅ', jyo: 'じょ', fa: 'ふぁ', fi: 'ふぃ', fe: 'ふぇ', fo: 'ふぉ', xtu: 'っ', ltu: 'っ', xtsu: 'っ', ltsu: 'っ' };
+    Object.keys(alt).forEach(function (k) { RM[k] = alt[k]; });
+  })();
+  // ローマ字 → ひらがな。変換の途中（最後の子音だけ打った状態など）でも、読める所までを返す
+  function romaji2kana(s) {
+    var out = '', i = 0;
+    while (i < s.length) {
+      var c = s[i], nx = s[i + 1];
+      if (nx !== undefined && c === nx && /[bcdfghjklmpqrstvwxyz]/.test(c)) { out += 'っ'; i++; continue; }
+      if (c === 'n') {
+        if (nx === undefined || nx === "'") { out += 'ん'; i += (nx === undefined ? 1 : 2); continue; }
+        if (nx === 'n') { var n2 = s[i + 2]; if (n2 === undefined || !/[aiueoy]/.test(n2)) { out += 'ん'; i += 2; } else { out += 'ん'; i++; } continue; }
+        if (!/[aiueoy]/.test(nx)) { out += 'ん'; i++; continue; }
+      }
+      var tok = null;
+      for (var len = 4; len >= 1; len--) { var seg = s.substr(i, len); if (RM[seg]) { tok = RM[seg]; i += len; break; } }
+      if (tok !== null) { out += tok; continue; }
+      if (c === '-') { out += 'ー'; i++; continue; }
+      i++; // 変換の途中の子音などは読み飛ばす
+    }
+    return out;
+  }
+  // 長音をゆるく見る（ふういん ≒ ふいん、ごうせい ≒ ごせい）。お段・う段のあとの「う」と、え段のあとの「い」を無視する
+  var lite = function (s) { return s.replace(/([おこそとのほもよろをごぞどぼぽょうくすつぬふむゆるぐずづぶぷゅ])う/g, '$1').replace(/([えけせてねへめれげぜでべぺ])い/g, '$1'); };
+  var HAY = {}, HAYL = {};
+  A.items.forEach(function (it) { HAY[it.key] = kn(it.n) + '|' + kn(R[it.n] || ''); HAYL[it.key] = lite(HAY[it.key]); });
+  function hit(it, q) {
+    if (!q) return true;
+    var n = kn(q); if (!n) return true;
+    var hay = HAY[it.key];
+    if (hay.indexOf(n) >= 0) return true;
+    var k = /[a-z]/.test(n) ? kn(romaji2kana(n)) : '';
+    if (k && hay.indexOf(k) >= 0) return true;
+    var hl = HAYL[it.key];
+    return hl.indexOf(lite(n)) >= 0 || (k && hl.indexOf(lite(k)) >= 0);
+  }
+  // 前方一致（読みや名前の先頭が入力と同じ）を先に並べる
+  function rank(it, q) {
+    var n = kn(q), k = /[a-z]/.test(n) ? kn(romaji2kana(n)) : '';
+    return HAY[it.key].split('|').some(function (p) { return (n && p.indexOf(n) === 0) || (k && p.indexOf(k) === 0); }) ? 0 : 1;
+  }
   var chip = function (it) { var on = A.isJudged(it.key); return '<button type="button" class="rg-chip jm-chip" data-jm-key="' + esc(it.key) + '" aria-pressed="' + on + '">' + A.ico(it.c) + '<span>' + esc(it.n) + '</span>' + (on ? CHECK : '') + '</button>'; };
   var counts = function (cat) { var all = A.items.filter(function (i) { return !cat || i.c === cat; }); return [all.filter(function (i) { return A.isJudged(i.key); }).length, all.length]; };
 
@@ -829,7 +897,7 @@ body { padding-bottom: 80px; }
   $('.filter-surface').appendChild(wrap);
   var dlg = document.createElement('dialog'); dlg.className = 'rg-dialog jm-sheet'; dlg.setAttribute('aria-labelledby', 'jm-st');
   dlg.innerHTML = '<div class="jm-head"><h2 class="rg-heading" id="jm-st">判断済みにするアイテム</h2><button class="rg-button" id="jm-close" type="button">閉じる</button></div>' +
-    '<input class="rg-input" id="jm-q" type="search" inputmode="search" enterkeyhint="search" autocomplete="off" placeholder="名前で探す（例：混乱、つえ）" aria-label="アイテム名で絞り込む">' +
+    '<input class="rg-input" id="jm-q" type="search" inputmode="search" enterkeyhint="search" autocomplete="off" placeholder="名前で探す（かな・ローマ字OK 例：こんらん、tsue）" aria-label="アイテム名で絞り込む">' +
     '<div class="rg-chips jm-tabs" id="jm-tabs" role="group" aria-label="種別"></div><div class="jm-grid" id="jm-grid"></div>' +
     '<div class="jm-foot"><span class="rg-muted" id="jm-count"></span><button class="rg-button" id="jm-done" type="button">完了</button></div>';
   ($('.rg-theme') || document.body).appendChild(dlg);   // フォントなどの指定が効くよう、ページの内側に置く
@@ -837,6 +905,7 @@ body { padding-bottom: 80px; }
     var tabs = [['', 'すべて']].concat(A.cats.map(function (c) { return [c, c]; }));
     $('#jm-tabs').innerHTML = tabs.map(function (t) { var n = counts(t[0]); return '<button type="button" class="rg-chip" data-jm-tab="' + esc(t[0]) + '" aria-pressed="' + (tab === t[0]) + '">' + (t[0] ? A.ico(t[0]) : '') + t[1] + '<span class="chip-count">' + n[0] + '/' + n[1] + '</span></button>'; }).join('');
     var list = A.items.filter(function (i) { return (!tab || i.c === tab) && hit(i, q); });
+    if (q) list = list.map(function (i, ix) { return [rank(i, q), ix, i]; }).sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; }).map(function (x) { return x[2]; });
     $('#jm-grid').innerHTML = list.length ? list.map(chip).join('') : '<p class="jm-empty">「' + esc(q) + '」に一致するアイテムはありません。</p>';
     var n = counts(''); $('#jm-count').textContent = '判断済み ' + n[0] + ' / ' + n[1];
   }
@@ -846,48 +915,68 @@ body { padding-bottom: 80px; }
   dlg.addEventListener('click', function (e) { var t = e.target.closest('[data-jm-tab]'); if (t) { tab = t.getAttribute('data-jm-tab'); renderSheet(); } });
   var qEl = $('#jm-q');
   qEl.addEventListener('compositionstart', function () { composing = true; }); qEl.addEventListener('compositionend', function () { composing = false; q = qEl.value; renderSheet(); });
-  qEl.addEventListener('input', function (e) { if (composing || e.isComposing) return; q = qEl.value; renderSheet(); });
+  qEl.addEventListener('input', function () { q = qEl.value; renderSheet(); });   // 変換の途中でも絞り込む
 
-  /* ---------- B: 入力欄の切替（123 ⇄ 名前） ---------- */
-  var price = $('#price'), pw = $('.price-wrap'), nameMode = false;
-  var mode = document.createElement('button'); mode.type = 'button'; mode.className = 'rg-button jm-b-only jm-mode'; mode.setAttribute('aria-pressed', 'false'); mode.setAttribute('aria-label', '入力の種類を切り替える（数字／名前）'); mode.innerHTML = '<span>123</span>';
-  pw.appendChild(mode);
+  /* ---------- B: 入力欄の切替（価格 ⇄ 名前）。切り替えの見せ方を3案 ---------- */
+  var price = $('#price'), pw = $('.price-wrap'), nav = $('.rg-nav'), nameMode = false;
+  // 入力欄の中にスイッチやボタンが入る案（①②）では、ヒント文を短くして、隠れないようにする
+  var phNum = function () { return root.getAttribute('data-jb') === '3' ? '値段を入力（例 400）' : '値段を入力'; };
+  var phName = function () { return root.getAttribute('data-jb') === '3' ? '名前を入力（かな・ローマ字OK）' : '名前を入力'; };
+  function refreshPlaceholder() { price.placeholder = nameMode ? phName() : phNum(); }
+  var HINT = '<p class="jm-sug-note">読み（こんらん）やローマ字（konran）でも探せます。漢字に変換しなくてOKです。</p>';
+  // ① 2択スイッチ（価格｜名前）: 入力欄の右に、どちらも文字で出す
+  var seg = document.createElement('div'); seg.className = 'jm-seg'; seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', '入力の種類');
+  seg.innerHTML = '<button type="button" data-m="num" aria-pressed="true">価格</button><button type="button" data-m="name" aria-pressed="false">名前</button>'; pw.appendChild(seg);
+  // ② ボタン: 押すとどうなるかを、文で書く
+  var btn2 = document.createElement('button'); btn2.type = 'button'; btn2.className = 'rg-button jm-btn2'; pw.appendChild(btn2);
+  // ③ 入力欄の下のタブ（価格で探す｜名前で探す）
+  var tabs3 = document.createElement('div'); tabs3.className = 'jm-tabs3'; tabs3.setAttribute('role', 'group'); tabs3.setAttribute('aria-label', '探し方');
+  tabs3.innerHTML = '<button type="button" data-m="num" aria-pressed="true">価格で探す</button><button type="button" data-m="name" aria-pressed="false">名前で探す</button>'; nav.appendChild(tabs3);
   var sugg = document.createElement('div'); sugg.className = 'jm-sugg'; sugg.id = 'jm-sugg'; sugg.hidden = true; pw.appendChild(sugg);
+  function syncUI() {
+    [seg, tabs3].forEach(function (el) { el.querySelectorAll('[data-m]').forEach(function (b) { b.setAttribute('aria-pressed', (b.getAttribute('data-m') === 'name') === nameMode); }); });
+    btn2.innerHTML = nameMode ? '<span class="jm-ico">123</span>価格に戻る' : '<span class="jm-ico">あ</span>名前で入力';
+    btn2.setAttribute('aria-label', nameMode ? '価格の入力に戻す' : '名前で入力する');
+  }
   function setMode(on) {
     if (nameMode === on) return;
     price.value = ''; price.dispatchEvent(new Event('input', { bubbles: true }));  // 価格の検索を空に戻す（切り替え前の状態で）
-    nameMode = on; root.classList.toggle('jm-name', on);
-    mode.setAttribute('aria-pressed', on); mode.innerHTML = '<span>' + (on ? '名前' : '123') + '</span>';
+    nameMode = on; root.classList.toggle('jm-name', on); syncUI();
     price.setAttribute('inputmode', on ? 'text' : 'numeric'); price.setAttribute('enterkeyhint', on ? 'search' : 'done');
-    price.placeholder = on ? 'アイテム名（例：混乱）' : '値段を入力（例 400）'; price.removeAttribute('maxlength'); if (!on) price.setAttribute('maxlength', '9');
-    sugg.hidden = true; price.focus();
+    refreshPlaceholder(); price.removeAttribute('maxlength'); if (!on) price.setAttribute('maxlength', '9');
+    price.focus(); suggest();
   }
-  mode.addEventListener('click', function () { setMode(!nameMode); });
+  [seg, tabs3].forEach(function (el) { el.addEventListener('click', function (e) { var b = e.target.closest('[data-m]'); if (b) setMode(b.getAttribute('data-m') === 'name'); }); });
+  btn2.addEventListener('click', function () { setMode(!nameMode); });
+  syncUI();
   var bComposing = false;
   function suggest() {
-    var v = price.value.trim(); if (!v) { sugg.hidden = true; return; }
-    var all = A.items.filter(function (i) { return !A.isJudged(i.key) && hit(i, v); });
+    var v = price.value.trim();
+    if (!v) { if (nameMode) { sugg.hidden = false; sugg.innerHTML = HINT; } else sugg.hidden = true; return; }
+    var all = A.items.filter(function (i) { return !A.isJudged(i.key) && hit(i, v); })
+      .map(function (i, ix) { return [rank(i, v), ix, i]; }).sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; }).map(function (x) { return x[2]; });
     sugg.hidden = false;
     sugg.innerHTML = all.length ? all.slice(0, 6).map(function (i) { return '<button type="button" class="jm-sug" data-jm-pick="' + esc(i.key) + '">' + A.ico(i.c) + '<span>' + esc(i.n) + '</span><em>判断済みにする</em></button>'; }).join('') + (all.length > 6 ? '<p class="jm-sug-note">ほか ' + (all.length - 6) + ' 件。もう少し入力して絞り込めます。</p>' : '')
       : '<p class="jm-sug-note">「' + esc(v) + '」に一致する未判断のアイテムはありません。</p>';
   }
-  function pick(key) { A.set(key, true); price.value = ''; sugg.hidden = true; price.focus(); }
+  function pick(key) { A.set(key, true); price.value = ''; price.focus(); suggest(); }
   sugg.addEventListener('click', function (e) { var t = e.target.closest('[data-jm-pick]'); if (t) pick(t.getAttribute('data-jm-pick')); });
-  // 名前モードの間は、価格の検索（数字だけに整える処理）に入力を渡さない
+  price.addEventListener('focus', function () { if (nameMode) suggest(); });
+  // 名前モードの間は、価格の検索（数字だけに整える処理）に入力を渡さない。変換の途中でも、入力に合わせて候補を出す
   ['input', 'compositionstart', 'compositionend', 'keydown'].forEach(function (ev) {
     window.addEventListener(ev, function (e) {
       if (!nameMode || e.target !== price) return;
       e.stopPropagation();
       if (ev === 'compositionstart') bComposing = true;
       else if (ev === 'compositionend') { bComposing = false; suggest(); }
-      else if (ev === 'input') { if (!bComposing && !e.isComposing) suggest(); }
+      else if (ev === 'input') suggest();
       else if (ev === 'keydown') {
         if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); var f = $('.jm-sug', sugg); if (f) pick(f.getAttribute('data-jm-pick')); }
         if (e.key === 'Escape') { sugg.hidden = true; }
       }
     }, true);
   });
-  document.addEventListener('click', function (e) { if (nameMode && !pw.contains(e.target)) sugg.hidden = true; });
+  document.addEventListener('click', function (e) { if (nameMode && !pw.contains(e.target) && !nav.contains(e.target)) sugg.hidden = true; });
 
   /* ---------- C: 常設パネル ---------- */
   var panel = document.createElement('details'); panel.className = 'rg-surface jm-panel jm-c-only'; panel.open = true;
@@ -903,10 +992,12 @@ body { padding-bottom: 80px; }
 
   /* ---------- 切り替えバー ---------- */
   var bar = document.createElement('div'); bar.className = 'jm-bar'; bar.setAttribute('role', 'group'); bar.setAttribute('aria-label', 'モックの切り替え');
-  bar.innerHTML = '<span>入力方法</span><button type="button" data-v="A" aria-pressed="true">A シート</button><button type="button" data-v="B" aria-pressed="false">B 入力欄の切替</button><button type="button" data-v="C" aria-pressed="false">C 常設パネル</button>';
+  bar.innerHTML = '<span>入力方法</span><button type="button" data-v="A" aria-pressed="true">A シート</button><button type="button" data-v="B" aria-pressed="false">B 入力欄の切替</button><button type="button" data-v="C" aria-pressed="false">C 常設パネル</button><span class="jm-bar-b">切替の見せ方</span><button type="button" class="jm-bar-b" data-jb="1" aria-pressed="true">① 2択</button><button type="button" class="jm-bar-b" data-jb="2" aria-pressed="false">② ボタン</button><button type="button" class="jm-bar-b" data-jb="3" aria-pressed="false">③ タブ</button>';
   document.body.appendChild(bar);
   function setVariant(v) { if (v !== 'B') setMode(false); if (dlg.open) dlg.close(); root.setAttribute('data-jm', v); bar.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-v') === v); }); }
-  bar.addEventListener('click', function (e) { var b = e.target.closest('[data-v]'); if (b) setVariant(b.getAttribute('data-v')); });
+  function setStyle(n) { root.setAttribute('data-jb', n); refreshPlaceholder(); bar.querySelectorAll('[data-jb]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-jb') === n); }); }
+  bar.addEventListener('click', function (e) { var b = e.target.closest('[data-v]'); if (b) setVariant(b.getAttribute('data-v')); var s = e.target.closest('[data-jb]'); if (s) setStyle(s.getAttribute('data-jb')); });
+  setStyle((location.hash.match(/jb=([123])/) || [])[1] || '1');
   setVariant((location.hash.match(/jm=([ABC])/) || [])[1] || 'A');
 })();
 </script>

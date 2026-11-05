@@ -33,10 +33,7 @@ html[data-jm="B"] .jm-b-only { display: inline-flex; }
 
 /* B: 入力欄の切替（123 ⇄ 名前） */
 .price-wrap { position: relative; }
-.jm-mode { position: absolute; right: 58px; top: 50%; transform: translateY(-50%); min-height: 36px !important; padding: 2px 12px !important; font-size: 13px !important; gap: 4px; z-index: 2; }
-.jm-mode[aria-pressed="true"] { background: linear-gradient(165deg, var(--lg-pressed-a), var(--lg-pressed-b)) !important; color: var(--rg-chip-on-text); }
 html[data-jm="B"] .price-unit { display: none; }
-html[data-jm="B"] .price-input { padding-right: 150px; }
 html[data-jm="B"].jm-name .price-input { font-size: 22px; letter-spacing: 0; }
 .jm-sugg { position: absolute; left: 0; right: 0; top: calc(100% + 10px); z-index: 12; display: grid; gap: 2px; padding: 8px; border-radius: 26px;
   /* ナビ（ぼかし付き）の中に置くため、入れ子のぼかしは効かない。背景は不透明にして、文字を読みやすくする */
@@ -57,7 +54,7 @@ html[data-jm="B"].jm-name .price-input { font-size: 22px; letter-spacing: 0; }
 .jm-panel .jm-body { margin-top: 12px; }
 
 /* モックの切り替えバー */
-.jm-bar { position: fixed; z-index: 40; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); display: flex; align-items: center; gap: 6px; padding: 6px; border-radius: 999px; width: max-content; max-width: calc(100vw - 24px);
+.jm-bar { flex-wrap: wrap; justify-content: center; position: fixed; z-index: 40; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); display: flex; align-items: center; gap: 6px; padding: 6px; border-radius: 28px; width: max-content; max-width: calc(100vw - 24px);
   background: linear-gradient(165deg, var(--lg-glass-a), var(--lg-glass-b)); border: 1px solid var(--lg-edge);
   -webkit-backdrop-filter: blur(22px) saturate(1.9); backdrop-filter: blur(22px) saturate(1.9); box-shadow: inset 0 1px 0 var(--lg-spec), 0 12px 32px var(--lg-shadow);
   font-family: "RoseGlassSeedJP", "Hiragino Sans", "Noto Sans JP", sans-serif; }
@@ -67,3 +64,25 @@ html[data-jm="B"].jm-name .price-input { font-size: 22px; letter-spacing: 0; }
 .jm-bar button:focus-visible { outline: 2px solid var(--rg-accent); outline-offset: 2px; }
 @media (max-width: 640px) { .jm-bar span { display: none; } .jm-bar button { padding-inline: 11px; font-size: 13px; min-height: 36px; } }
 body { padding-bottom: 80px; }
+
+/* B: 切り替えの見せ方 3案（① 2択スイッチ ／ ② 文で書いたボタン ／ ③ 入力欄の下のタブ） */
+.jm-seg, .jm-btn2, .jm-tabs3 { display: none; }
+html[data-jm="B"][data-jb="1"] .jm-seg { display: inline-flex; }
+html[data-jm="B"][data-jb="2"] .jm-btn2 { display: inline-flex; }
+html[data-jm="B"][data-jb="3"] .jm-tabs3 { display: inline-flex; }
+html:not([data-jm="B"]) .jm-bar-b { display: none; }
+html[data-jm="B"][data-jb="1"] .price-input { padding-right: 168px; }
+html[data-jm="B"][data-jb="2"] .price-input { padding-right: 184px; }
+html[data-jm="B"][data-jb="3"] .price-input { padding-right: 64px; }
+.jm-seg { position: absolute; right: 54px; top: 50%; transform: translateY(-50%); z-index: 2; padding: 3px; gap: 2px; border-radius: 999px;
+  background: var(--lg-glass-b); border: 1px solid var(--lg-edge-soft); box-shadow: inset 0 1px 2px rgba(10, 24, 60, .12); }
+.jm-seg button, .jm-tabs3 button { appearance: none; min-height: 34px; padding: 2px 14px; border: 0; border-radius: 999px; background: transparent; color: var(--rg-muted); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: background-color .15s ease, color .15s ease; }
+.jm-seg button[aria-pressed="true"], .jm-tabs3 button[aria-pressed="true"] { background: linear-gradient(165deg, var(--lg-pressed-a), var(--lg-pressed-b)); color: var(--rg-chip-on-text); box-shadow: inset 0 1px 0 var(--lg-spec), 0 2px 8px rgba(42, 108, 184, .25); }
+.jm-seg button:focus-visible, .jm-tabs3 button:focus-visible { outline: 2px solid var(--rg-accent); outline-offset: 1px; }
+.jm-btn2 { position: absolute; right: 54px; top: 50%; transform: translateY(-50%); z-index: 2; min-height: 38px !important; padding: 2px 14px 2px 6px !important; font-size: 13px !important; gap: 8px !important; }
+.jm-ico { display: inline-grid; place-items: center; min-width: 28px; height: 26px; padding: 0 6px; border-radius: 999px; font-size: 12px; font-weight: 700; background: linear-gradient(165deg, var(--lg-pressed-a), var(--lg-pressed-b)); color: var(--rg-chip-on-text); }
+.jm-tabs3 { grid-column: 2; grid-row: 2; justify-self: center; padding: 3px; gap: 2px; border-radius: 999px; background: var(--lg-glass-b); border: 1px solid var(--lg-edge-soft); }
+.jm-tabs3 button { min-height: 32px; font-size: 13px; padding-inline: 16px; }
+@media (max-width: 700px) { .jm-tabs3 { grid-column: 1 / -1; grid-row: 3; justify-self: stretch; } .jm-tabs3 button { flex: 1; } html[data-jm="B"][data-jb="1"] .price-input { padding-right: 150px; } .jm-seg button { padding-inline: 11px; } }
+html[data-jm="B"][data-jb="3"] .jm-sugg { top: calc(100% + 54px); }
+@media (max-width: 700px) { html[data-jm="B"][data-jb="3"] .jm-sugg { top: calc(100% + 54px); } }
