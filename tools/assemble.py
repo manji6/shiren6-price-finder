@@ -15,7 +15,8 @@ for i in items:
     data.append(d)
 data_json=json.dumps(data,ensure_ascii=False,separators=(',',':'))
 t=open('template.html',encoding='utf8').read()
-text=t.replace('/*DATA*/',data_json)
+readings=json.load(open('readings.json',encoding='utf8'))
+text=t.replace('/*DATA*/',data_json).replace('/*READINGS*/',json.dumps(readings,ensure_ascii=False,separators=(',',':')))
 chars=set(text)|set(chr(c) for c in range(0x20,0x7f))|set('、。・「」（）×✓…·→％％：／〜ー　')
 chars|={chr(c) for c in range(0x3040,0x3100)}
 import os

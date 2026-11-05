@@ -166,7 +166,6 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .price-wrap { position: relative; width: 100%; max-width: 460px; justify-self: center; }
 .price-input { min-height: 56px; padding: 8px 128px 8px 16px; border-radius: 14px; font-size: 28px; line-height: 1.3; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
 .price-input::placeholder { font-size: 17px; font-weight: 400; letter-spacing: 0; }
-.price-unit { position: absolute; right: 56px; top: 50%; transform: translateY(-50%); font-size: 14px; font-weight: 700; color: var(--rg-muted); pointer-events: none; }
 .price-clear { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; color: var(--rg-muted); cursor: pointer; }
 .price-clear:focus-visible { outline: 2px solid var(--rg-accent); outline-offset: 0; }
 .price-clear svg { width: 20px; height: 20px; }
@@ -391,8 +390,7 @@ body::before { background: transparent; }
 }
 .rg-theme .price-input:focus-visible { outline: 0; border-color: var(--rg-accent); box-shadow: 0 0 0 4px rgba(76, 147, 224, .32), inset 0 2px 8px rgba(10, 24, 60, .10), 0 6px 22px rgba(42, 108, 184, .35); }
 .rg-theme .price-clear { right: 10px; }
-.rg-theme .price-unit { right: 60px; }
-.rg-theme .rg-button, .rg-theme .rg-chip {
+.rg-theme .rg-theme .rg-button, .rg-theme .rg-chip {
   border-radius: 999px;
   background: linear-gradient(165deg, var(--lg-glass-a), var(--lg-glass-b));
   border: 1px solid var(--lg-edge);
@@ -428,6 +426,32 @@ body::before { background: transparent; }
   .rg-theme :is(.rg-surface, .rg-nav)::before { display: none; }
 }
 @media (forced-colors: active) { .lg-scene { display: none; } }
+
+/* ===== 入力欄の「価格｜名前」切り替えと、名前の候補 ===== */
+.price-input { padding-right: 134px; }
+.price-wrap:has(.price-clear:not([hidden])) .price-input { padding-right: 186px; }
+html.name-mode .price-input { font-size: 22px; letter-spacing: 0; }
+.mode-seg { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); z-index: 2; display: inline-flex; padding: 3px; gap: 2px; border-radius: 999px;
+  background: var(--lg-glass-b); border: 1px solid var(--lg-edge-soft); box-shadow: inset 0 1px 2px rgba(10, 24, 60, .12); }
+.price-clear:not([hidden]) ~ .mode-seg { right: 58px; }
+.mode-seg button { appearance: none; min-height: 34px; padding: 2px 14px; border: 0; border-radius: 999px; background: transparent; color: var(--rg-muted); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: background-color var(--rg-fast) ease, color var(--rg-fast) ease; }
+.mode-seg button[aria-pressed="true"] { background: linear-gradient(165deg, var(--lg-pressed-a), var(--lg-pressed-b)); color: var(--rg-chip-on-text); box-shadow: inset 0 1px 0 var(--lg-spec), 0 2px 8px rgba(42, 108, 184, .25); }
+.mode-seg button:focus-visible { outline: 2px solid var(--rg-accent); outline-offset: 1px; }
+.sugg { position: absolute; left: 0; right: 0; top: calc(100% + 10px); z-index: 12; display: grid; gap: 2px; padding: 8px; border-radius: 26px;
+  /* ナビ（ぼかし付き）の中に置くため、入れ子のぼかしは効かない。背景は不透明にして、文字を読みやすくする */
+  background: var(--rg-solid-surface); border: 1px solid var(--lg-edge); box-shadow: inset 0 1px 0 var(--lg-spec), 0 22px 56px var(--lg-shadow); }
+.sugg[hidden] { display: none; }
+.sug { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 6px 10px; border: 0; border-radius: 18px; background: transparent; color: var(--rg-text); font: inherit; font-size: 16px; font-weight: 700; text-align: left; cursor: pointer; }
+.sug:hover, .sug:focus-visible { background: var(--lg-input); outline: 0; }
+.sug .cat-ico { width: 32px; height: 32px; }
+.sug span { min-width: 0; overflow-wrap: anywhere; }
+.sug em { margin-left: auto; font-style: normal; font-weight: 700; font-size: 13px; color: var(--rg-accent-text); white-space: nowrap; }
+.sug-note { padding: 6px 12px 2px; font-size: 13px; line-height: 1.7; color: var(--rg-muted); }
+@media (max-width: 700px) {
+  .price-input { padding-right: 126px; }
+  .price-wrap:has(.price-clear:not([hidden])) .price-input { padding-right: 178px; }
+  .mode-seg button { padding-inline: 12px; }
+}
 </style>
 </head>
 <body>
@@ -441,12 +465,15 @@ body::before { background: transparent; }
       <span class="rg-muted" id="progress">判断済み 0 / 0</span>
     </div>
     <div class="price-wrap">
-      <label class="rg-visually-hidden" for="price">ゲーム内で見えた売値または買値（ギタン）</label>
-      <input class="rg-input price-input" id="price" type="text" inputmode="numeric" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" maxlength="9" placeholder="値段を入力（例 400）" aria-describedby="status">
-      <span class="price-unit" aria-hidden="true">ギタン</span>
+      <label class="rg-visually-hidden" for="price" id="price-label">ゲーム内で見えた売値または買値（ギタン）</label>
+      <input class="rg-input price-input" id="price" type="text" inputmode="numeric" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" maxlength="9" placeholder="値段を入力" aria-describedby="status">
       <button class="price-clear" id="clear" type="button" aria-label="入力した値段を消す" hidden>
         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>
       </button>
+      <div class="mode-seg" role="group" aria-label="入力の種類">
+        <button type="button" data-m="num" aria-pressed="true">価格</button><button type="button" data-m="name" aria-pressed="false">名前</button>
+      </div>
+      <div class="sugg" id="sugg" hidden></div>
     </div>
     <button class="rg-button" id="reset" type="button">リセット</button>
   </header>
@@ -499,6 +526,7 @@ body::before { background: transparent; }
 <script>
 (function () {
   var DATA = /*DATA*/;
+  var READINGS = /*READINGS*/;   // 名前 → 読み仮名（ひらがな。別の読みは | 区切り）。tools/make_readings.py で生成
   var CATS = ['巻物', '草・種', '腕輪', '杖', '壺'];
   var ST = { n: '通常', b: '祝福', c: '呪い' };
   var STATE_ORDER = { n: 0, b: 1, c: 2 };
@@ -540,6 +568,58 @@ body::before { background: transparent; }
       });
     });
   });
+
+
+  // ---- 名前の検索: 漢字の名前でも、読み（ひらがな）やローマ字でヒットさせる ----
+  // 全角半角をそろえ、カタカナをひらがなにし、長音（ー）と空白は無視する
+  var kn = function (s) { return s.normalize('NFKC').toLowerCase().replace(/[ァ-ヶ]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0x60); }).replace(/[ー\s]/g, ''); };
+  var RM = {};
+  (function () {
+    var rows = { '': 'あいうえお', k: 'かきくけこ', s: 'さしすせそ', t: 'たちつてと', n: 'なにぬねの', h: 'はひふへほ', m: 'まみむめも', r: 'らりるれろ', g: 'がぎぐげご', z: 'ざじずぜぞ', d: 'だぢづでど', b: 'ばびぶべぼ', p: 'ぱぴぷぺぽ' };
+    Object.keys(rows).forEach(function (c) { for (var i = 0; i < 5; i++) RM[c + 'aiueo'[i]] = rows[c][i]; });
+    RM.ya = 'や'; RM.yu = 'ゆ'; RM.yo = 'よ'; RM.wa = 'わ'; RM.wo = 'を';
+    var small = { a: 'ゃ', u: 'ゅ', o: 'ょ' };
+    ['k', 'g', 's', 'z', 't', 'd', 'n', 'h', 'b', 'p', 'm', 'r'].forEach(function (c) { ['a', 'u', 'o'].forEach(function (v) { RM[c + 'y' + v] = rows[c][1] + small[v]; }); });
+    var alt = { si: 'し', shi: 'し', ti: 'ち', chi: 'ち', tu: 'つ', tsu: 'つ', hu: 'ふ', fu: 'ふ', zi: 'じ', ji: 'じ', sha: 'しゃ', shu: 'しゅ', sho: 'しょ', she: 'しぇ', cha: 'ちゃ', chu: 'ちゅ', cho: 'ちょ', che: 'ちぇ', ja: 'じゃ', ju: 'じゅ', jo: 'じょ', jya: 'じゃ', jyu: 'じゅ', jyo: 'じょ', fa: 'ふぁ', fi: 'ふぃ', fe: 'ふぇ', fo: 'ふぉ', xtu: 'っ', ltu: 'っ', xtsu: 'っ', ltsu: 'っ' };
+    Object.keys(alt).forEach(function (k) { RM[k] = alt[k]; });
+  })();
+  // ローマ字 → ひらがな。変換の途中（最後の子音だけ打った状態など）でも、読める所までを返す
+  function romaji2kana(s) {
+    var out = '', i = 0;
+    while (i < s.length) {
+      var c = s[i], nx = s[i + 1];
+      if (nx !== undefined && c === nx && /[bcdfghjklmpqrstvwxyz]/.test(c)) { out += 'っ'; i++; continue; }
+      if (c === 'n') {
+        if (nx === undefined || nx === "'") { out += 'ん'; i += (nx === undefined ? 1 : 2); continue; }
+        if (nx === 'n') { var n2 = s[i + 2]; if (n2 === undefined || !/[aiueoy]/.test(n2)) { out += 'ん'; i += 2; } else { out += 'ん'; i++; } continue; }
+        if (!/[aiueoy]/.test(nx)) { out += 'ん'; i++; continue; }
+      }
+      var tok = null;
+      for (var len = 4; len >= 1; len--) { var seg = s.substr(i, len); if (RM[seg]) { tok = RM[seg]; i += len; break; } }
+      if (tok !== null) { out += tok; continue; }
+      if (c === '-') { out += 'ー'; i++; continue; }
+      i++; // 変換の途中の子音などは読み飛ばす
+    }
+    return out;
+  }
+  // 長音をゆるく見る（ふういん ≒ ふいん、ごうせい ≒ ごせい）。お段・う段のあとの「う」と、え段のあとの「い」を無視する
+  var lite = function (s) { return s.replace(/([おこそとのほもよろをごぞどぼぽょうくすつぬふむゆるぐずづぶぷゅ])う/g, '$1').replace(/([えけせてねへめれげぜでべぺ])い/g, '$1'); };
+  var HAY = {}, HAYL = {};
+  DATA.forEach(function (it) { var k = keyOf(it); HAY[k] = kn(it.n) + '|' + kn(READINGS[it.n] || ''); HAYL[k] = lite(HAY[k]); });
+  function nameHit(it, query) {
+    var n = kn(query); if (!n) return true;
+    var k = keyOf(it), hay = HAY[k];
+    if (hay.indexOf(n) >= 0) return true;
+    var ka = /[a-z]/.test(n) ? kn(romaji2kana(n)) : '';
+    if (ka && hay.indexOf(ka) >= 0) return true;
+    var hl = HAYL[k];
+    return hl.indexOf(lite(n)) >= 0 || !!(ka && hl.indexOf(lite(ka)) >= 0);
+  }
+  // 名前や読みの先頭が入力と同じものを、先に並べる
+  function nameRank(it, query) {
+    var n = kn(query), ka = /[a-z]/.test(n) ? kn(romaji2kana(n)) : '';
+    return HAY[keyOf(it)].split('|').some(function (p) { return (n && p.indexOf(n) === 0) || (ka && p.indexOf(ka) === 0); }) ? 0 : 1;
+  }
 
   var cat = '';
   var q = null;
@@ -651,7 +731,8 @@ body::before { background: transparent; }
     $('reset').disabled = judged.size === 0;
   }
 
-  function render() {
+  function render() { renderMain(); if (nameMode) suggest(); }
+  function renderMain() {
     renderChips();
     renderJudged();
     var box = $('results');
@@ -659,7 +740,8 @@ body::before { background: transparent; }
     if (q == null) {
       box.innerHTML = '<section class="rg-surface hero-empty rg-enter"><h2 class="rg-heading">値段を入力するだけで瞬時にアイテム候補を表示</h2>' +
         '<div class="hero-copy"><p>ゲームで見えた売値・買値を上の欄に入力すると、一致するアイテムを売値の場合と買値の場合に分けて表示します。</p>' +
-        '<p>見分けがついたアイテムは「判断完了」を押すと、以後の候補から外れます。</p></div>' +
+        '<p>見分けがついたアイテムは「判断完了」を押すと、以後の候補から外れます。</p>' +
+        '<p>名前が分かっているアイテムは、入力欄の「名前」に切り替えると、その場で判断済みにできます。</p></div>' +
         '<div class="example-row"><span class="rg-muted">例：</span>' + EXAMPLES.map(function (n) { return '<button class="rg-chip" type="button" data-example="' + n + '">' + fmt(n) + '</button>'; }).join('') + '</div></section>';
       return;
     }
@@ -686,13 +768,16 @@ body::before { background: transparent; }
     render();
   }
 
-  function judge(key) {
-    var btns = Array.from(document.querySelectorAll('[data-judge]'));
-    var at = btns.findIndex(function (b) { return b.getAttribute('data-judge') === key; });
+  function markJudged(key) {
     judged.add(key); save();
     lastJudged = key;
     $('status').setAttribute('data-keep', '1');
     setStatus('<span>「' + esc(byKey[key].n) + '」を判断完了にしました。</span><button class="linkbtn" type="button" data-undo="' + esc(key) + '">元に戻す</button>');
+  }
+  function judge(key) {
+    var btns = Array.from(document.querySelectorAll('[data-judge]'));
+    var at = btns.findIndex(function (b) { return b.getAttribute('data-judge') === key; });
+    markJudged(key);
     render();
     var next = Array.from(document.querySelectorAll('[data-judge]'));
     if (next.length) next[Math.min(Math.max(at, 0), next.length - 1)].focus({ preventScroll: true });
@@ -707,16 +792,60 @@ body::before { background: transparent; }
   }
 
   var priceEl = $('price');
+
+  // ---- 入力欄の「価格｜名前」切り替えと、名前からの判断済み ----
+  var nameMode = false, sugg = $('sugg'), clearBtn = $('clear');
+  var PRICE_LABEL = 'ゲーム内で見えた売値または買値（ギタン）', NAME_LABEL = '判断済みにするアイテムの名前';
+  var SUGG_HINT = '<p class="sug-note">読み（こんらん）やローマ字（konran）でも探せます。漢字に変換しなくてOKです。</p>';
+  function setMode(on) {
+    if (nameMode === on) return;
+    priceEl.value = ''; q = null; clearStatusKeep(); setStatus(''); nameMode = on;
+    document.documentElement.classList.toggle('name-mode', on);
+    document.querySelectorAll('.mode-seg [data-m]').forEach(function (b) { b.setAttribute('aria-pressed', String((b.getAttribute('data-m') === 'name') === on)); });
+    priceEl.setAttribute('inputmode', on ? 'text' : 'numeric'); priceEl.setAttribute('enterkeyhint', on ? 'search' : 'done');
+    priceEl.placeholder = on ? '名前を入力' : '値段を入力';
+    if (on) priceEl.removeAttribute('maxlength'); else priceEl.setAttribute('maxlength', '9');
+    $('price-label').textContent = on ? NAME_LABEL : PRICE_LABEL;
+    render(); suggest(); priceEl.focus();   // suggest() は、価格モードでは候補を閉じる
+  }
+  function suggest() {
+    if (!nameMode) { sugg.hidden = true; return; }
+    clearBtn.hidden = priceEl.value === '';
+    var v = priceEl.value.trim();
+    if (!v) { sugg.hidden = false; sugg.innerHTML = SUGG_HINT; return; }
+    var list = [];
+    DATA.forEach(function (it, i) { if (!judged.has(keyOf(it)) && nameHit(it, v)) list.push([nameRank(it, v), i, it]); });
+    list.sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; });
+    sugg.hidden = false;
+    sugg.innerHTML = list.length
+      ? list.slice(0, 6).map(function (x) { var it = x[2]; return '<button type="button" class="sug" data-pick="' + esc(keyOf(it)) + '">' + ico(it.c) + '<span>' + esc(it.n) + '</span><em>判断済みにする</em></button>'; }).join('') +
+        (list.length > 6 ? '<p class="sug-note">ほか ' + (list.length - 6) + ' 件。もう少し入力して絞り込めます。</p>' : '')
+      : '<p class="sug-note">「' + esc(v) + '」に一致する未判断のアイテムはありません。</p>';
+  }
+  function pickName(key) {
+    markJudged(key); priceEl.value = ''; render(); priceEl.focus({ preventScroll: true });
+  }
+  document.querySelectorAll('.mode-seg [data-m]').forEach(function (b) { b.addEventListener('click', function () { setMode(b.getAttribute('data-m') === 'name'); }); });
+  sugg.addEventListener('click', function (e) { var t = e.target.closest('[data-pick]'); if (t) pickName(t.getAttribute('data-pick')); });
+  document.addEventListener('click', function (e) { if (nameMode && !sugg.parentNode.contains(e.target)) sugg.hidden = true; });
   priceEl.addEventListener('compositionstart', function () { composing = true; });
-  priceEl.addEventListener('compositionend', function () { composing = false; readInput(true); });
+  priceEl.addEventListener('compositionend', function () { composing = false; if (nameMode) suggest(); else readInput(true); });
   priceEl.addEventListener('input', function (e) {
+    if (nameMode) { suggest(); return; }          // 名前は、変換の途中でも、入力に合わせて候補を出す
     if (composing || e.isComposing) return;
     readInput(true);
   });
-  priceEl.addEventListener('focus', function () { setTimeout(function () { try { priceEl.select(); } catch (e) {} }, 0); });
-  priceEl.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); priceEl.blur(); } });
+  priceEl.addEventListener('focus', function () { setTimeout(function () { try { priceEl.select(); } catch (e) {} }, 0); if (nameMode) suggest(); });
+  priceEl.addEventListener('keydown', function (e) {
+    if (nameMode) {
+      if (e.key === 'Escape') { sugg.hidden = true; return; }
+      if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); var f = sugg.querySelector('.sug'); if (f) pickName(f.getAttribute('data-pick')); }
+      return;
+    }
+    if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); priceEl.blur(); }
+  });
 
-  $('clear').addEventListener('click', function () { priceEl.value = ''; readInput(true); priceEl.focus(); });
+  $('clear').addEventListener('click', function () { priceEl.value = ''; if (nameMode) suggest(); else readInput(true); priceEl.focus(); });
 
   document.addEventListener('click', function (e) {
     var t = e.target.closest('[data-judge],[data-undo],[data-cat],[data-example],[data-jump]');
