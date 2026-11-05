@@ -741,6 +741,19 @@ body::before { background: transparent; }
   dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
   dlg.addEventListener('close', function () { if (document.activeElement === document.body) $('reset').disabled ? $('price').focus() : $('reset').focus(); });
 
+  // 判断済みの状態を、画面の外から操作するための小さな窓口（入力方法のモック用）
+  var listeners = [];
+  var _render = render;
+  render = function () { _render(); listeners.forEach(function (f) { f(); }); };
+  window.ShirenApp = {
+    cats: CATS,
+    items: DATA.map(function (it) { return { key: keyOf(it), c: it.c, n: it.n }; }),
+    isJudged: function (key) { return judged.has(key); },
+    set: function (key, on) { if (!byKey[key]) return; if (on) judged.add(key); else judged.delete(key); save(); clearStatusKeep(); setStatus(''); render(); },
+    onChange: function (f) { listeners.push(f); },
+    ico: function (c) { return ico(c); }
+  };
+
   render();
 })();
 </script>
