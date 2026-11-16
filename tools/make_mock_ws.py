@@ -90,6 +90,7 @@ CSS = '''
 .seal-chips .rg-chip { min-height: 40px; padding: 4px 8px 4px 14px; }
 .seal-chips .rg-chip svg { width: 16px; height: 16px; opacity: .8; }
 .seal-chips .price { font-size: 12.5px; font-weight: 400; opacity: .85; font-variant-numeric: tabular-nums; }
+.seal-chips .rg-chip.own { padding-right: 14px; cursor: default; }
 .seal-add { min-height: 40px; padding: 4px 16px; }
 .seal-panel { display: grid; gap: 10px; padding: 14px; border-radius: 24px; background: var(--rg-solid-surface); border: 1px solid var(--lg-edge); box-shadow: inset 0 1px 0 var(--lg-spec); }
 .seal-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 6px; max-height: 300px; overflow: auto; padding: 2px; }
@@ -223,7 +224,7 @@ BODY = '''
       </div>
       <p class="pick-meta" id="pick-meta" hidden></p>
       <div class="seal-box" id="seal-box" hidden>
-        <div class="ws-label"><span>追加で付いている印</span><small id="seal-sum"></small></div>
+        <div class="ws-label"><span>付いている印</span><small id="seal-sum"></small></div>
         <div class="seal-chips" id="seal-chips"></div>
         <div class="seal-panel" id="seal-panel" hidden>
           <input class="rg-input" id="seal-q" type="text" autocomplete="off" spellcheck="false" placeholder="印の名前で絞り込み（例：会心、kaishin）" aria-label="印の名前で絞り込み">
@@ -355,7 +356,9 @@ BODY = '''
     if (S.g !== 'j') return;
     var it = item(), chips = $('seal-chips');
     var tb = 0;
-    var h = S.seals.map(function (no) {
+    var own = it && it.seal ? sealsFor(S.pick.k).filter(function (x) { return x.n === it.seal; })[0] : null;
+    var h = own ? '<span class="rg-chip own" aria-pressed="true">' + esc(own.n) + '<span class="price">基本の印</span></span>' : '';
+    h += S.seals.map(function (no) {
       var s = sealBy(S.pick.k, no); tb += s.buy;
       return '<button class="rg-chip" type="button" data-rm="' + no + '" aria-label="印「' + esc(s.n) + '」を外す" aria-pressed="true">' + esc(s.n) + '<span class="price">+' + fmt(s.buy) + '</span>' + ico(P.x, 'i') + '</button>';
     }).join('');
@@ -367,7 +370,7 @@ BODY = '''
       var q = S.sealQ.trim();
       $('seal-list').innerHTML = sealsFor(S.pick.k).filter(function (s) { return !q || nameHit(s.n, q) || kn(s.ab).indexOf(kn(q)) >= 0; }).map(function (s) {
         var own = it.seal && it.seal === s.n, on = S.seals.indexOf(s.no) >= 0;
-        return '<button class="seal-opt" type="button" data-sno="' + s.no + '" aria-pressed="' + on + '"' + (own ? ' disabled' : '') + '><span class="ab">' + esc(s.ab) + '</span><span class="nm2"><span>' + esc(s.n) + (s.nat ? ' <span class="tag tag-nat">天然</span>' : '') + '</span><small>' + (own ? '最初から付いています' : '+' + fmt(s.buy) + ' ギタン') + '</small></span></button>';
+        return '<button class="seal-opt" type="button" data-sno="' + s.no + '" aria-pressed="' + on + '"' + (own ? ' disabled' : '') + '><span class="ab">' + esc(s.ab) + '</span><span class="nm2"><span>' + esc(s.n) + (s.nat ? ' <span class="tag tag-nat">天然</span>' : '') + '</span><small>' + (own ? '基本の印として付いています' : '+' + fmt(s.buy) + ' ギタン') + '</small></span></button>';
       }).join('') || '<p class="rg-muted" style="padding:8px">該当する印がありません。</p>';
     }
   }
@@ -419,7 +422,7 @@ BODY = '''
     if (t.id === 're-pick') { S.pick = null; S.seals = []; renderAll(); $('ws-name').focus(); return; }
     if (t.id === 'seal-toggle') { S.sealOpen = !S.sealOpen; renderSeals(); return; }
     if (t.dataset.rm) { S.seals = S.seals.filter(function (n) { return n !== +t.dataset.rm; }); renderAll(); return; }
-    if (t.dataset.sno) { var no = +t.dataset.sno, ix = S.seals.indexOf(no); if (ix >= 0) S.seals.splice(ix, 1); else S.seals.push(no); renderSeals(); renderResults(); renderSum(); return; }
+    if (t.dataset.sno) { var no = +t.dataset.sno, ix = S.seals.indexOf(no); if (ix >= 0) S.seals.splice(ix, 1); else S.seals.push(no); renderSeals(); renderResults(); return; }
     if (t.id === 'ws-clear') { S.price = ''; $('ws-price').value = ''; renderAll(); $('ws-price').focus(); return; }
     if (t.id === 'ws-reset') { S.pick = null; S.seals = []; S.price = ''; S.q = ''; $('ws-price').value = ''; $('ws-name').value = ''; renderAll(); return; }
     if (t.dataset.ex) { example(t.dataset.ex); return; }

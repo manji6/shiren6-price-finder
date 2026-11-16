@@ -18,7 +18,9 @@ def items(path):
     out = []
     for m in re.finditer(r'^(.+?) \| (\d+) \| (\d+) \| (\d+) \| (\d+) \| (.*?) \| (.*?) \| (.*?) \|', s, re.M):
         name, base, slots, buy, sell, reso, seal, note = m.groups()
-        out.append(dict(n=name.strip(), base=int(base), slots=int(slots), buy=int(buy), sell=int(sell), seal=seal.strip() if seal.strip() != '-' else ''))
+        seal = seal.strip() if seal.strip() != '-' else ''
+        seal = {'腹ぢから攻撃': '腹ちから攻撃'}.get(seal, seal)  # 印のページの表記にそろえる
+        out.append(dict(n=name.strip(), base=int(base), slots=int(slots), buy=int(buy), sell=int(sell), seal=seal))
     return out
 
 def seals(path):
