@@ -157,6 +157,7 @@ BODY = '''
     <button class="rg-chip" type="button" data-ex="c">呪い（カタナ 1,044）</button>
     <button class="rg-chip" type="button" data-ex="s">盾（鉄甲の盾 1,500）</button>
     <button class="rg-chip" type="button" data-ex="j">神器（カタナ＋印2つ 4,800）</button>
+    <button class="rg-chip" type="button" data-ex="jc">神器の呪い（カタナ＋印2つ 3,654）</button>
     <button class="rg-chip" type="button" data-ex="m">マイナス呪い（カタナ 783）</button>
     <button class="rg-chip" type="button" data-ex="x">該当なし（カタナ 1,250）</button>
   </div>
@@ -338,7 +339,7 @@ BODY = '''
     $('seal-box').hidden = !(S.g === 'j');
     if (it) {
       box.innerHTML = ico(S.pick.k === 'w' ? P.w : P.s) + '<div class="picked-main"><span class="picked-name">' + esc(it.n) + '</span><span class="picked-meta">' + (S.pick.k === 'w' ? '武器' : '盾') + '・基礎値 ' + it.base + '・印数 ' + it.slots +
-        (it.seal ? '・最初から ' + esc(it.seal) : '') + '・基本の買値 ' + fmt(it.buy) + '</span></div><button class="rg-button" type="button" id="re-pick">変更</button>';
+        (it.seal ? '・最初から ' + esc(it.seal) : '') + '・' + (S.g === 'j' ? '基本の買値 ' + fmt(it.buy) + ' → 神器は ' + fmt(it.buy * 2) + '（2倍）' : '基本の買値 ' + fmt(it.buy)) + '</span></div><button class="rg-button" type="button" id="re-pick">変更</button>';
     }
   }
   function renderSugg() {
@@ -349,7 +350,7 @@ BODY = '''
     var list = all.filter(function (e) { return (!S.kind || e.k === S.kind) && (!qq || nameHit(e.x.n, qq)); });
     var head = '<div class="sugg-head">' + [['', 'すべて'], ['w', '武器'], ['s', '盾']].map(function (c) { return '<button class="rg-chip" type="button" data-kind="' + c[0] + '" aria-pressed="' + (S.kind === c[0]) + '">' + c[1] + '</button>'; }).join('') + '</div>';
     var rows = list.slice(0, 7).map(function (e) {
-      return '<button class="sug" type="button" data-pk="' + e.k + ':' + e.i + '">' + ico(e.k === 'w' ? P.w : P.s) + '<span class="sug-main"><span>' + esc(e.x.n) + '</span><small>基礎値 ' + e.x.base + '・印数 ' + e.x.slots + '</small></span><em>' + fmt(e.x.buy) + '</em></button>';
+      return '<button class="sug" type="button" data-pk="' + e.k + ':' + e.i + '">' + ico(e.k === 'w' ? P.w : P.s) + '<span class="sug-main"><span>' + esc(e.x.n) + '</span><small>基礎値 ' + e.x.base + '・印数 ' + e.x.slots + '</small></span><em>' + (S.g === 'j' ? '神器 ' + fmt(e.x.buy * 2) : fmt(e.x.buy)) + '</em></button>';
     }).join('');
     var note = list.length > 7 ? '<p class="sug-note">ほか ' + (list.length - 7) + '件。名前を入力して絞り込めます。</p>' : (list.length ? '' : '<p class="sug-note">該当する武器・盾がありません。</p>');
     box.innerHTML = head + rows + note; box.hidden = false;
@@ -364,7 +365,7 @@ BODY = '''
     }).join('');
     h += '<button class="rg-button seal-add" type="button" id="seal-toggle" ' + (it ? '' : 'disabled') + '>' + (S.sealOpen ? '閉じる' : '＋ 印を追加') + '</button>';
     chips.innerHTML = h;
-    $('seal-sum').textContent = it ? (S.seals.length ? '追加分の合計：+' + fmt(tb) + ' ギタン' : 'なければそのままで大丈夫です') : '先に名前を選んでください';
+    $('seal-sum').textContent = it ? (S.seals.length ? '強化値 0・呪いなしの買値：' + fmt(it.buy * 2) + '（基礎×2）' + (tb ? ' + ' + fmt(tb) + '（印）' : '') + ' ＝ ' + fmt(it.buy * 2 + tb) : 'なければそのままで大丈夫です') : '先に名前を選んでください';
     $('seal-panel').hidden = !(S.sealOpen && it);
     if (S.sealOpen && it) {
       var q = S.sealQ.trim();
@@ -436,8 +437,9 @@ BODY = '''
     if (id === 'x') price = '1250';
     if (id === 'm') price = '783';
     if (id === 'j') { S.g = 'j'; price = '4800'; }
+    if (id === 'jc') { S.g = 'j'; price = '3654'; }
     S.pick = { k: k, i: find(k === 'w' ? D.weapons : D.shields, name) };
-    if (id === 'j') { S.seals = [5, 18]; S.sealOpen = false; }
+    if (id === 'j' || id === 'jc') { S.seals = [5, 18]; S.sealOpen = false; }
     S.price = price; $('ws-price').value = price; S.q = ''; $('ws-name').value = ''; renderAll();
   }
   example('n');
