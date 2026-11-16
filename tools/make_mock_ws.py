@@ -220,7 +220,6 @@ BODY = '''
         <div class="seg" role="group" aria-label="通常か神器か">
           <button type="button" data-g="n" aria-pressed="true">通常</button><button type="button" data-g="j" aria-pressed="false">__STAR__神器</button>
         </div>
-        <p class="rg-muted ws-hint" id="ws-hint"></p>
       </div>
       <p class="pick-meta" id="pick-meta" hidden></p>
       <div class="seal-box" id="seal-box" hidden>
@@ -290,7 +289,6 @@ BODY = '''
   var NMIN = -9, NMAX = 99, CURSE = 0.87;
 
   var S = { tab: 'ws', g: 'n', kind: '', pick: null, q: '', price: '', seals: [], sealOpen: false, sealQ: '', toolPrice: '400' };
-  var HINT = { n: '', j: '付いている印を選んでください。' };
 
   function item() { return S.pick ? (S.pick.k === 'w' ? D.weapons : D.shields)[S.pick.i] : null; }
   function sealsFor(k) { return D.seals.filter(function (s) { return s.k === k; }); }
@@ -331,7 +329,7 @@ BODY = '''
   function renderPick() {
     var it = item(), box = $('picked');
     $('ws-name').hidden = !!it; box.hidden = !it;
-    $('ws-hint').textContent = HINT[S.g]; $('ws-hint').hidden = !HINT[S.g];
+   
     $('seal-box').hidden = !(S.g === 'j');
     if (it) {
       box.innerHTML = ico(S.pick.k === 'w' ? P.w : P.s) + '<span class="picked-name">' + esc(it.n) + '</span><button class="rg-button" type="button" id="re-pick" aria-label="名前を選び直す">変更</button>';
