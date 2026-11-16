@@ -284,10 +284,8 @@ BODY = '''
   var NMIN = -9, NMAX = 99, CURSE = 0.87;
 
   var S = { tab: 'ws', g: 'n', kind: '', pick: null, q: '', price: '', seals: [], sealOpen: false, sealQ: '', toolPrice: '400' };
-  var HINT = {
-    n: 'お店で売っている普通の武器・盾です。最初から付いている印は基礎の値段に含まれるので、印は選ばなくて大丈夫です。',
-    j: '神器は、基礎の値段が2倍になり、追加で付いた印の値段が足されます。名前に加えて、付いている印を選んでください。'
-  };
+  var HINT = { n: '', j: '付いている印を選んでください。' };
+
   function item() { return S.pick ? (S.pick.k === 'w' ? D.weapons : D.shields)[S.pick.i] : null; }
   function sealsFor(k) { return D.seals.filter(function (s) { return s.k === k; }); }
   function sealBy(k, no) { return D.seals.filter(function (s) { return s.k === k && s.no === no; })[0]; }
@@ -326,13 +324,13 @@ BODY = '''
   function renderPick() {
     var it = item(), box = $('picked');
     $('ws-name').hidden = !!it; box.hidden = !it;
-    $('ws-hint').textContent = HINT[S.g];
+    $('ws-hint').textContent = HINT[S.g]; $('ws-hint').hidden = !HINT[S.g];
     $('seal-box').hidden = !(S.g === 'j');
     if (it) {
       box.innerHTML = ico(S.pick.k === 'w' ? P.w : P.s) + '<span class="picked-name">' + esc(it.n) + '</span><button class="rg-button" type="button" id="re-pick" aria-label="名前を選び直す">変更</button>';
     }
-    var pm = $('pick-meta'); pm.hidden = !it;
-    if (it) pm.textContent = (S.pick.k === 'w' ? '武器' : '盾') + '・基礎値 ' + it.base + '・印数 ' + it.slots + (it.seal ? '・最初から ' + it.seal : '') + '・' + (S.g === 'j' ? '神器の買値 ' + fmt(it.buy * 2) : '買値 ' + fmt(it.buy));
+    var pm = $('pick-meta'); pm.hidden = !(it && S.g === 'j');
+    if (it && S.g === 'j') pm.textContent = (S.pick.k === 'w' ? '武器' : '盾') + '・基礎値 ' + it.base + '・印数 ' + it.slots + '・神器の買値 ' + fmt(it.buy * 2) + '（基本印のみ）';
   }
   function renderSugg() {
     var box = $('ws-sugg');
@@ -357,7 +355,7 @@ BODY = '''
     }).join('');
     h += '<button class="rg-button seal-add" type="button" id="seal-toggle" ' + (it ? '' : 'disabled') + '>' + (S.sealOpen ? '閉じる' : '＋ 印を追加') + '</button>';
     chips.innerHTML = h;
-    $('seal-sum').textContent = it ? (S.seals.length ? '強化値 0・呪いなしの買値：' + fmt(it.buy * 2 + tb) : 'なければそのままで大丈夫です') : '先に名前を選んでください';
+    $('seal-sum').textContent = it ? (S.seals.length ? '強化値 0・呪いなしの買値：' + fmt(it.buy * 2 + tb) : '') : '先に名前を選んでください';
     $('seal-panel').hidden = !(S.sealOpen && it);
     if (S.sealOpen && it) {
       var q = S.sealQ.trim();
