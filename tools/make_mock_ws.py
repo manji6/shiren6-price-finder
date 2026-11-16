@@ -118,6 +118,11 @@ CSS = '''
 .ws-res .calc { color: var(--rg-muted); font-size: 13.5px; font-variant-numeric: tabular-nums; }
 .near { margin-top: 10px; padding: 10px 14px; border-radius: 16px; background: var(--lg-input); font-size: 14px; color: var(--rg-muted); font-variant-numeric: tabular-nums; }
 .near b { color: var(--rg-text); }
+.near { display: grid; gap: 4px; }
+.near p { font-size: 13px; }
+.near-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.st-tag { flex: none; min-width: 3.2em; padding: 0 10px; border-radius: 999px; text-align: center; font-size: 12.5px; font-weight: 700; line-height: 1.7; background: var(--rg-chip-on-bg); color: var(--rg-chip-on-text); }
+.st-tag.c { background: var(--st-c-wash2); color: var(--st-c-text); }
 .hero-ws { grid-column: 1 / -1; display: grid; gap: 14px; }
 .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 4px; }
 .steps li { padding: 14px 16px; border-radius: 20px; background: var(--lg-input); line-height: 1.7; }
@@ -307,9 +312,10 @@ BODY = '''
     });
     return out;
   }
-  function near(it, p) {
-    var fx = fixedPrice(it), n0 = Math.floor((p - fx) / 100), res = [];
-    [n0, n0 + 1].forEach(function (n) { if (n >= NMIN && n <= NMAX) res.push({ n: n, v: fx + 100 * n }); });
+  function near(it, p, st) {
+    var lo = null, res = [];
+    for (var n = NMIN; n <= NMAX; n++) if (priceOf(it, n, st) <= p) lo = n;
+    [lo, lo === null ? NMIN : lo + 1].forEach(function (n) { if (n !== null && n >= NMIN && n <= NMAX) res.push({ n: n, v: priceOf(it, n, st) }); });
     return res;
   }
   var sgn = function (n) { return n >= 0 ? '+' + n : '−' + Math.abs(n); };
@@ -387,9 +393,14 @@ BODY = '''
     var vs = solve(it, p), body;
     if (vs.length) body = '<ul>' + vs.map(function (v) { return variantRow(it, v); }).join('') + '</ul>';
     else {
-      var nr = near(it, p);
+      var line = function (st) {
+        var xs = near(it, p, st).filter(function (x) { return Math.abs(x.v - p) <= 150; });
+        return xs.length ? '<span class="near-row"><span class="st-tag' + (st === 'c' ? ' c' : '') + '">' + (st === 'c' ? '呪い' : '通常') + '</span>' + xs.map(function (x) { return '<b>' + sgn(x.n) + '</b> のとき ' + fmt(x.v); }).join(' ／ ') + '</span>' : '';
+      };
       body = '<p class="empty-box">買値が <strong>' + fmt(p) + '</strong> になる強化値はありません。</p>' +
-        (nr.length ? '<p class="near">近い値：' + nr.map(function (x) { return '<b>' + sgn(x.n) + '</b> のとき ' + fmt(x.v); }).join(' ／ ') + '。読み間違いや、印の選び漏れがないか確かめてください。</p>' : '');
+        (near(it, p, 'n').concat(near(it, p, 'c')).some(function (x) { return Math.abs(x.v - p) <= 150; }) ?
+          '<div class="near"><p>近い値（読み間違いや、印の選び漏れがないか確かめてください）</p>' + line('n') + line('c') + '</div>' :
+          '<p class="near">この値段は、強化値 ' + sgn(NMIN) + '〜' + sgn(NMAX) + ' の範囲に近い値がありません。名前や印の選び間違いがないか確かめてください。</p>');
     }
     box.innerHTML = '<section class="rg-surface res-sec res-ws" aria-label="判定">' +
       '<h2 class="rg-heading res-head">' + esc(it.n) + (S.g === 'j' ? '（神器）' : '') + ' ・ 買値 <span class="res-num">' + fmt(p) + '</span><span class="res-count">' + vs.length + '件</span></h2>' + body + '</section>';
