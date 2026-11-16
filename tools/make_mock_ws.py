@@ -7,6 +7,10 @@ from mock_common import *
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = open(os.path.join(HERE, 'ws_data.json'), encoding='utf8').read()
+READ = open(os.path.join(HERE, 'ws_readings.json'), encoding='utf8').read()
+# 名前検索（かな・カタカナ・ローマ字・長音のゆるさ）は、アプリ本体（template.html）のコードをそのまま使う
+_tpl = open(os.path.join(HERE, 'template.html'), encoding='utf8').read()
+SEARCH_JS = _tpl[_tpl.index('var kn = function'):_tpl.index('var HAY = {}')]
 
 def png(name):
     return 'data:image/png;base64,' + base64.b64encode(open(os.path.join(HERE, '..', 'public', 'bg', name), 'rb').read()).decode()
@@ -112,6 +116,9 @@ CSS = '''
 .ws-res .plus { min-width: 84px; padding: 4px 16px; border-radius: 20px; text-align: center; font-size: 30px; line-height: 1.4; font-weight: 700; font-variant-numeric: tabular-nums;
   background: var(--rg-chip-on-bg); color: var(--rg-chip-on-text); }
 .rg-list-row.st-c.ws-res .plus { background: var(--st-c-wash2); color: var(--st-c-text); box-shadow: 0 0 0 1.5px var(--st-c-line); }
+.ws-res .ans { font-size: 1.15em; font-variant-numeric: tabular-nums; }
+.rg-list-row.st-c .ans { color: var(--st-c-text); }
+.res-ws { grid-column: 1 / -1; }
 .ws-res .calc { color: var(--rg-muted); font-size: 13.5px; font-variant-numeric: tabular-nums; }
 .near { margin-top: 10px; padding: 10px 14px; border-radius: 16px; background: var(--lg-input); font-size: 14px; color: var(--rg-muted); font-variant-numeric: tabular-nums; }
 .near b { color: var(--rg-text); }
@@ -147,9 +154,10 @@ BODY = '''
   <div class="mock-bar" aria-label="モック操作用">
     <b>モック操作用</b>
     <button class="rg-chip" type="button" data-ex="n">通常（カタナ 1,300）</button>
-    <button class="rg-chip" type="button" data-ex="c">呪い（カタナ 売値 417）</button>
+    <button class="rg-chip" type="button" data-ex="c">呪い（カタナ 1,044）</button>
     <button class="rg-chip" type="button" data-ex="s">盾（鉄甲の盾 1,500）</button>
     <button class="rg-chip" type="button" data-ex="j">神器（カタナ＋印2つ 4,800）</button>
+    <button class="rg-chip" type="button" data-ex="m">マイナス呪い（カタナ 783）</button>
     <button class="rg-chip" type="button" data-ex="x">該当なし（カタナ 1,250）</button>
   </div>
 
@@ -199,15 +207,15 @@ BODY = '''
         <div class="ws-field">
           <div class="ws-label"><span>武器・盾の名前</span><small>ゲームで名前は分かるので、そのまま選びます</small></div>
           <div class="name-box" id="name-box">
-            <input class="rg-input ws-input" id="ws-name" type="text" autocomplete="off" spellcheck="false" placeholder="名前の一部を入力（例：カタナ）" aria-controls="ws-sugg">
+            <input class="rg-input ws-input" id="ws-name" type="text" autocomplete="off" spellcheck="false" placeholder="名前を入力（例：かたな、katana）" aria-controls="ws-sugg">
             <div class="picked" id="picked" hidden></div>
             <div class="sugg" id="ws-sugg" hidden></div>
           </div>
         </div>
         <div class="ws-field">
-          <div class="ws-label"><span>値段</span><small>買値か売値、見えたほうを入力</small></div>
+          <div class="ws-label"><span>値段</span><small>お店で見える買値</small></div>
           <div class="price-box">
-            <input class="rg-input ws-input num" id="ws-price" type="text" inputmode="numeric" autocomplete="off" maxlength="9" placeholder="値段を入力" aria-label="ゲーム内で見えた売値または買値（ギタン）">
+            <input class="rg-input ws-input num" id="ws-price" type="text" inputmode="numeric" autocomplete="off" maxlength="9" placeholder="買値を入力" aria-label="ゲーム内で見えた買値（ギタン）">
             <button class="price-clear" id="ws-clear" type="button" aria-label="入力した値段を消す" hidden><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg></button>
           </div>
         </div>
@@ -216,7 +224,7 @@ BODY = '''
         <div class="ws-label"><span>追加で付いている印</span><small id="seal-sum"></small></div>
         <div class="seal-chips" id="seal-chips"></div>
         <div class="seal-panel" id="seal-panel" hidden>
-          <input class="rg-input" id="seal-q" type="text" autocomplete="off" spellcheck="false" placeholder="印の名前で絞り込み（例：会心）" aria-label="印の名前で絞り込み">
+          <input class="rg-input" id="seal-q" type="text" autocomplete="off" spellcheck="false" placeholder="印の名前で絞り込み（例：会心、kaishin）" aria-label="印の名前で絞り込み">
           <div class="seal-list" id="seal-list"></div>
         </div>
       </div>
@@ -228,16 +236,16 @@ BODY = '''
       <div class="rg-document-row">
         <h2 class="rg-heading">計算のしくみ</h2>
         <div class="rg-copy">
-          <p>通常の武器・盾は、買値が「基礎の買値＋100×強化値」、売値が「基礎の売値＋40×強化値」です。最初から付いている印は、基礎の値段に含まれています。</p>
+          <p>通常の武器・盾は、買値が「基礎の買値＋100×強化値」です。最初から付いている印は、基礎の値段に含まれています。</p>
           <p>神器は、基礎の値段が2倍になり、追加で付いた印の値段が足されます。強化値の加算は2倍になりません。青神器・金神器の違いでも値段は変わりません。</p>
-          <p>呪われていると、買値・売値とも合計が87%（小数点以下切り捨て）になります。祝福は、武器・盾にはありません。</p>
+          <p>呪われていると、買値は合計が87%（小数点以下切り捨て）になります。祝福は、武器・盾にはありません。</p>
         </div>
       </div>
       <div class="rg-document-row">
         <h2 class="rg-heading">対象と制限</h2>
         <div class="rg-copy">
           <p>強化値は −9〜+99 を対象にしています。印を銀封印しても、印数を増やしても、値段は変わりません。</p>
-          <p>値段が複数の候補に当たるときは、すべて並べます。ゲームでもう一方の値段（売値か買値）も見られるときは、各候補の「売値」「買値」と見比べると確かめられます。</p>
+          <p>値段が複数の候補に当たるときは、すべて並べます。売値は対象にしていません。</p>
         </div>
       </div>
     </section>
@@ -247,7 +255,8 @@ BODY = '''
       <ul>
         <li>武器・盾の名前と基礎値段、印の値段は、シレン6 Wikiの「武器」「盾」「印」のページの値を使っています。印の値段はWikiの検証値（コミュニティ報告）で、確定情報ではありません。</li>
         <li>神器で、その武器に最初から付いている印が「基礎の値段×2」に含まれるかは、Wikiに明記がありません。このモックでは含まれる前提で、追加で付いた印だけを足しています。</li>
-        <li>名前の検索は、本実装では既存の「かな・ローマ字でも探せる」仕組みを使います。このモックは部分一致だけです。</li>
+        <li>名前と印の検索は、既存の「かな・ローマ字でも探せる」仕組みと同じコードです。読みは辞書の下書きに手直しを加えたもので、印の読みは下書きのままです。</li>
+        <li>売値からの判定は付けていません（お店で並んでいる買値だけを使います）。</li>
         <li>武器・盾には「判断完了」のような記録機能はつけていません。1つずつ強化値を調べて終わる使い方を想定しています。</li>
       </ul>
     </section>
@@ -258,7 +267,17 @@ BODY = '''
 
 <script>
 (function () {
-  var D = __DATA__;
+  var D = __DATA__, R = __READ__;
+  __SEARCH__
+  var HAY = {}, HAYL = {};
+  function hay(n) { if (!HAY[n]) { HAY[n] = kn(n) + '|' + kn(R[n] || ''); HAYL[n] = lite(HAY[n]); } }
+  function nameHit(n, query) {
+    var qn = kn(query); if (!qn) return true; hay(n);
+    if (HAY[n].indexOf(qn) >= 0) return true;
+    var ka = /[a-z]/.test(qn) ? kn(romaji2kana(qn)) : '';
+    if (ka && HAY[n].indexOf(ka) >= 0) return true;
+    return HAYL[n].indexOf(lite(qn)) >= 0 || !!(ka && HAYL[n].indexOf(lite(ka)) >= 0);
+  }
   var $ = function (id) { return document.getElementById(id); };
   var fmt = function (n) { return Number(n).toLocaleString('ja-JP'); };
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
@@ -266,7 +285,6 @@ BODY = '''
   function ico(inner, cls) { return '<svg class="' + (cls || 'cat-ico') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + '</svg>'; }
   var SKULL = '__SKULL__';
   var NMIN = -9, NMAX = 99, CURSE = 0.87;
-  var kata = function (s) { return s.replace(/[\\u3041-\\u3096]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) + 96); }); };
 
   var S = { tab: 'ws', g: 'n', kind: '', pick: null, q: '', price: '', seals: [], sealOpen: false, sealQ: '', toolPrice: '400' };
   var HINT = {
@@ -278,26 +296,25 @@ BODY = '''
   function sealBy(k, no) { return D.seals.filter(function (s) { return s.k === k && s.no === no; })[0]; }
 
   /* ---------- 計算 ---------- */
-  function fixedPrice(side, it) {
-    var base = side === 'buy' ? it.buy : it.sell, m = S.g === 'j' ? 2 : 1, sum = 0;
-    S.seals.forEach(function (no) { var s = sealBy(S.pick.k, no); if (s) sum += side === 'buy' ? s.buy : s.sell; });
-    return base * m + sum;
+  function fixedPrice(it) {
+    var sum = 0;
+    S.seals.forEach(function (no) { var x = sealBy(S.pick.k, no); if (x) sum += x.buy; });
+    return it.buy * (S.g === 'j' ? 2 : 1) + sum;
   }
-  function priceOf(side, it, n, st) {
-    var v = fixedPrice(side, it) + (side === 'buy' ? 100 : 40) * n;
+  function priceOf(it, n, st) {
+    var v = fixedPrice(it) + 100 * n;
     return st === 'c' ? Math.floor(v * CURSE) : v;
   }
-  function solve(side, it, p) {
+  function solve(it, p) {
     var out = [];
     ['n', 'c'].forEach(function (st) {
-      for (var n = NMIN; n <= NMAX; n++) if (priceOf(side, it, n, st) === p) { out.push({ st: st, n: n }); break; }
+      for (var n = NMIN; n <= NMAX; n++) if (priceOf(it, n, st) === p) { out.push({ st: st, n: n }); break; }
     });
     return out;
   }
-  function near(side, it, p) {
-    var step = side === 'buy' ? 100 : 40, fx = fixedPrice(side, it);
-    var n0 = Math.floor((p - fx) / step), res = [];
-    [n0, n0 + 1].forEach(function (n) { if (n >= NMIN && n <= NMAX) res.push({ n: n, v: fx + step * n }); });
+  function near(it, p) {
+    var fx = fixedPrice(it), n0 = Math.floor((p - fx) / 100), res = [];
+    [n0, n0 + 1].forEach(function (n) { if (n >= NMIN && n <= NMAX) res.push({ n: n, v: fx + 100 * n }); });
     return res;
   }
   var sgn = function (n) { return n >= 0 ? '+' + n : '−' + Math.abs(n); };
@@ -311,7 +328,7 @@ BODY = '''
   }
   function renderSum() {
     var it = item(), p = S.price ? fmt(S.price) : '';
-    var h = '<span>' + (it ? esc(it.n) : '<span class="dim">名前を選んでください</span>') + '</span><span class="dim">' + (S.g === 'j' ? '神器' : '通常') + '</span><span>' + (p ? p + ' ギタン' : '<span class="dim">値段を入力</span>') + '</span>';
+    var h = '<span>' + (it ? esc(it.n) : '<span class="dim">名前を選んでください</span>') + '</span><span class="dim">' + (S.g === 'j' ? '神器' : '通常') + '</span><span>' + (p ? p + ' ギタン' : '<span class="dim">買値を入力</span>') + '</span>';
     $('ws-sum').innerHTML = h;
   }
   function renderPick() {
@@ -321,18 +338,18 @@ BODY = '''
     $('seal-box').hidden = !(S.g === 'j');
     if (it) {
       box.innerHTML = ico(S.pick.k === 'w' ? P.w : P.s) + '<div class="picked-main"><span class="picked-name">' + esc(it.n) + '</span><span class="picked-meta">' + (S.pick.k === 'w' ? '武器' : '盾') + '・基礎値 ' + it.base + '・印数 ' + it.slots +
-        (it.seal ? '・最初から ' + esc(it.seal) : '') + '・買値 ' + fmt(it.buy) + ' / 売値 ' + fmt(it.sell) + '</span></div><button class="rg-button" type="button" id="re-pick">変更</button>';
+        (it.seal ? '・最初から ' + esc(it.seal) : '') + '・基本の買値 ' + fmt(it.buy) + '</span></div><button class="rg-button" type="button" id="re-pick">変更</button>';
     }
   }
   function renderSugg() {
-    var box = $('ws-sugg'), q = kata(S.q.trim());
+    var box = $('ws-sugg');
     if (S.pick || document.activeElement !== $('ws-name') && !S.q) { box.hidden = true; return; }
-    var all = [];
+    var all = [], qq = S.q.trim();
     D.weapons.forEach(function (x, i) { all.push({ k: 'w', i: i, x: x }); }); D.shields.forEach(function (x, i) { all.push({ k: 's', i: i, x: x }); });
-    var list = all.filter(function (e) { return (!S.kind || e.k === S.kind) && (!q || kata(e.x.n).indexOf(q) >= 0); });
+    var list = all.filter(function (e) { return (!S.kind || e.k === S.kind) && (!qq || nameHit(e.x.n, qq)); });
     var head = '<div class="sugg-head">' + [['', 'すべて'], ['w', '武器'], ['s', '盾']].map(function (c) { return '<button class="rg-chip" type="button" data-kind="' + c[0] + '" aria-pressed="' + (S.kind === c[0]) + '">' + c[1] + '</button>'; }).join('') + '</div>';
     var rows = list.slice(0, 7).map(function (e) {
-      return '<button class="sug" type="button" data-pk="' + e.k + ':' + e.i + '">' + ico(e.k === 'w' ? P.w : P.s) + '<span class="sug-main"><span>' + esc(e.x.n) + '</span><small>基礎値 ' + e.x.base + '・印数 ' + e.x.slots + '</small></span><em>買値 ' + fmt(e.x.buy) + '</em></button>';
+      return '<button class="sug" type="button" data-pk="' + e.k + ':' + e.i + '">' + ico(e.k === 'w' ? P.w : P.s) + '<span class="sug-main"><span>' + esc(e.x.n) + '</span><small>基礎値 ' + e.x.base + '・印数 ' + e.x.slots + '</small></span><em>' + fmt(e.x.buy) + '</em></button>';
     }).join('');
     var note = list.length > 7 ? '<p class="sug-note">ほか ' + (list.length - 7) + '件。名前を入力して絞り込めます。</p>' : (list.length ? '' : '<p class="sug-note">該当する武器・盾がありません。</p>');
     box.innerHTML = head + rows + note; box.hidden = false;
@@ -340,56 +357,51 @@ BODY = '''
   function renderSeals() {
     if (S.g !== 'j') return;
     var it = item(), chips = $('seal-chips');
-    var tb = 0, ts = 0;
+    var tb = 0;
     var h = S.seals.map(function (no) {
-      var s = sealBy(S.pick.k, no); tb += s.buy; ts += s.sell;
-      return '<button class="rg-chip" type="button" data-rm="' + no + '" aria-label="印「' + esc(s.n) + '」を外す" aria-pressed="true">' + esc(s.n) + '<span class="price">買値 +' + fmt(s.buy) + '</span>' + ico(P.x, 'i') + '</button>';
+      var s = sealBy(S.pick.k, no); tb += s.buy;
+      return '<button class="rg-chip" type="button" data-rm="' + no + '" aria-label="印「' + esc(s.n) + '」を外す" aria-pressed="true">' + esc(s.n) + '<span class="price">+' + fmt(s.buy) + '</span>' + ico(P.x, 'i') + '</button>';
     }).join('');
     h += '<button class="rg-button seal-add" type="button" id="seal-toggle" ' + (it ? '' : 'disabled') + '>' + (S.sealOpen ? '閉じる' : '＋ 印を追加') + '</button>';
     chips.innerHTML = h;
-    $('seal-sum').textContent = it ? (S.seals.length ? '追加分の合計：買値 +' + fmt(tb) + ' / 売値 +' + fmt(ts) : 'なければそのままで大丈夫です') : '先に名前を選んでください';
+    $('seal-sum').textContent = it ? (S.seals.length ? '追加分の合計：+' + fmt(tb) + ' ギタン' : 'なければそのままで大丈夫です') : '先に名前を選んでください';
     $('seal-panel').hidden = !(S.sealOpen && it);
     if (S.sealOpen && it) {
-      var q = kata(S.sealQ.trim());
-      $('seal-list').innerHTML = sealsFor(S.pick.k).filter(function (s) { return !q || kata(s.n).indexOf(q) >= 0 || kata(s.ab).indexOf(q) >= 0; }).map(function (s) {
+      var q = S.sealQ.trim();
+      $('seal-list').innerHTML = sealsFor(S.pick.k).filter(function (s) { return !q || nameHit(s.n, q) || kn(s.ab).indexOf(kn(q)) >= 0; }).map(function (s) {
         var own = it.seal && it.seal === s.n, on = S.seals.indexOf(s.no) >= 0;
-        return '<button class="seal-opt" type="button" data-sno="' + s.no + '" aria-pressed="' + on + '"' + (own ? ' disabled' : '') + '><span class="ab">' + esc(s.ab) + '</span><span class="nm2"><span>' + esc(s.n) + (s.nat ? ' <span class="tag tag-nat">天然</span>' : '') + '</span><small>' + (own ? '最初から付いています' : '買値 +' + fmt(s.buy) + ' / 売値 +' + fmt(s.sell)) + '</small></span></button>';
+        return '<button class="seal-opt" type="button" data-sno="' + s.no + '" aria-pressed="' + on + '"' + (own ? ' disabled' : '') + '><span class="ab">' + esc(s.ab) + '</span><span class="nm2"><span>' + esc(s.n) + (s.nat ? ' <span class="tag tag-nat">天然</span>' : '') + '</span><small>' + (own ? '最初から付いています' : '+' + fmt(s.buy) + ' ギタン') + '</small></span></button>';
       }).join('') || '<p class="rg-muted" style="padding:8px">該当する印がありません。</p>';
     }
   }
-  function variantRow(side, it, v) {
-    var other = side === 'buy' ? '売値' : '買値', os = side === 'buy' ? 'sell' : 'buy', step = side === 'buy' ? 100 : 40, fx = fixedPrice(side, it);
-    var cur = v.st === 'c', total = fx + step * v.n, val = priceOf(side, it, v.n, v.st);
-    var calc = fmt(fx) + (v.n < 0 ? ' − ' : ' + ') + step + ' × ' + Math.abs(v.n);
+  function variantRow(it, v) {
+    var cur = v.st === 'c', fx = fixedPrice(it), val = priceOf(it, v.n, v.st);
+    var calc = fmt(fx) + (v.n < 0 ? ' − ' : ' + ') + 100 + ' × ' + Math.abs(v.n);
     calc = cur ? '(' + calc + ') × 0.87 ＝ ' + fmt(val) + '（小数点以下切り捨て）' : calc + ' ＝ ' + fmt(val);
-    var label = cur ? '<span class="st-text st-text-c">' + ico(SKULL, 'st-glyph') + '呪い ×0.87</span>' : '';
     var jt = S.g === 'j' ? '<span class="tag tag-jingi">' + ico(P.star, 'i') + '神器</span>' : '';
-    return '<li class="rg-list-row ws-res ' + (cur ? 'st-c' : 'st-n') + '"><div><p class="rg-list-title"><span class="nm">' + ico(S.pick.k === 'w' ? P.w : P.s) + '<span>' + esc(it.n) + '<span class="cnt"> ' + sgn(v.n) + '</span></span></span>' + jt + '</p>' +
-      '<div class="rg-list-copy"><span class="var">' + label + '<span>' + other + ' ' + fmt(priceOf(os, it, v.n, v.st)) + '</span></span><span class="var calc">' + calc + '</span></div></div>' +
-      '<span class="plus" aria-label="強化値 ' + sgn(v.n) + '">' + sgn(v.n) + '</span></li>';
+    var word = '<b class="ans">' + sgn(v.n) + (cur ? '（呪い）' : '') + '</b>';
+    return '<li class="rg-list-row ws-res ' + (cur ? 'st-c' : 'st-n') + '"><div><p class="rg-list-title"><span class="nm">' + ico(S.pick.k === 'w' ? P.w : P.s) + '<span>この値段の' + esc(it.n) + 'は ' + word + (cur ? '' : ' ') + 'です</span></span>' + jt + '</p>' +
+      '<div class="rg-list-copy"><span class="var calc">' + calc + '</span></div></div>' +
+      '<span class="plus" aria-hidden="true">' + sgn(v.n) + '</span></li>';
   }
   function renderResults() {
     var box = $('ws-results'), it = item(), p = S.price ? parseInt(S.price, 10) : null;
     $('ws-clear').hidden = !S.price;
     if (!it || p == null || isNaN(p)) {
       box.innerHTML = '<section class="rg-surface hero-ws"><h2 class="rg-heading">名前と値段から、強化値と呪いを調べます</h2>' +
-        '<p class="rg-copy">ゲームで見えた武器・盾の名前を選び、売値か買値を入力してください。' + (it ? '' : '先に名前を選ぶと、値段の入力欄で計算が始まります。') + '</p>' +
-        '<ul class="steps"><li><b>1. 通常か神器かを選ぶ</b>神器のときは、付いている印も選びます。</li><li><b>2. 名前を選ぶ</b>かな・ローマ字でも探せます。</li><li><b>3. 値段を入れる</b>買値と売値の両方で当てはまる強化値を出します。</li></ul></section>';
+        '<p class="rg-copy">ゲームで見えた武器・盾の名前を選び、買値を入力してください。' + (it ? '' : '先に名前を選ぶと、値段の入力欄で計算が始まります。') + '</p>' +
+        '<ul class="steps"><li><b>1. 通常か神器かを選ぶ</b>神器のときは、付いている印も選びます。</li><li><b>2. 名前を選ぶ</b>かな・ローマ字でも探せます。</li><li><b>3. 買値を入れる</b>当てはまる強化値と、呪いの有無を出します。</li></ul></section>';
       return;
     }
-    var sol = { buy: solve('buy', it, p), sell: solve('sell', it, p) }, anyHit = sol.buy.length + sol.sell.length > 0;
-    box.innerHTML = ['buy', 'sell'].map(function (side) {
-      var label = side === 'buy' ? '買値' : '売値', vs = sol[side];
-      var head = '<h2 class="rg-heading res-head">' + label + 'が <span class="res-num">' + fmt(p) + '</span> の場合 <span class="res-count">' + vs.length + '件</span></h2>';
-      var body;
-      if (vs.length) body = '<ul>' + vs.map(function (v) { return variantRow(side, it, v); }).join('') + '</ul>';
-      else {
-        var nr = anyHit ? [] : near(side, it, p);
-        body = '<p class="empty-box">' + label + 'が <strong>' + fmt(p) + '</strong> になる強化値はありません。</p>' +
-          (nr.length ? '<p class="near">近い値：' + nr.map(function (x) { return '<b>' + sgn(x.n) + '</b> のとき ' + fmt(x.v); }).join(' ／ ') + '。読み間違いや、印の選び漏れがないか確かめてください。</p>' : '');
-      }
-      return '<section class="rg-surface res-sec" aria-label="' + label + 'の場合">' + head + body + '</section>';
-    }).join('');
+    var vs = solve(it, p), body;
+    if (vs.length) body = '<ul>' + vs.map(function (v) { return variantRow(it, v); }).join('') + '</ul>';
+    else {
+      var nr = near(it, p);
+      body = '<p class="empty-box">買値が <strong>' + fmt(p) + '</strong> になる強化値はありません。</p>' +
+        (nr.length ? '<p class="near">近い値：' + nr.map(function (x) { return '<b>' + sgn(x.n) + '</b> のとき ' + fmt(x.v); }).join(' ／ ') + '。読み間違いや、印の選び漏れがないか確かめてください。</p>' : '');
+    }
+    box.innerHTML = '<section class="rg-surface res-sec res-ws" aria-label="判定">' +
+      '<h2 class="rg-heading res-head">' + esc(it.n) + (S.g === 'j' ? '（神器）' : '') + ' ・ 買値 <span class="res-num">' + fmt(p) + '</span><span class="res-count">' + vs.length + '件</span></h2>' + body + '</section>';
   }
   function renderAll() { renderTabs(); renderSum(); renderPick(); renderSugg(); renderSeals(); renderResults();
     document.querySelectorAll('.ws-top [data-g]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-g') === S.g)); }); }
@@ -419,9 +431,10 @@ BODY = '''
   function find(list, n) { for (var i = 0; i < list.length; i++) if (list[i].n === n) return i; return -1; }
   function example(id) {
     S.tab = 'ws'; S.sealOpen = false; S.seals = []; S.g = 'n'; var k = 'w', name = 'カタナ', price = '1300';
-    if (id === 'c') price = '417';
+    if (id === 'c') price = '1044';
     if (id === 's') { k = 's'; name = '鉄甲の盾'; price = '1500'; }
     if (id === 'x') price = '1250';
+    if (id === 'm') price = '783';
     if (id === 'j') { S.g = 'j'; price = '4800'; }
     S.pick = { k: k, i: find(k === 'w' ? D.weapons : D.shields, name) };
     if (id === 'j') { S.seals = [5, 18]; S.sealOpen = false; }
@@ -434,7 +447,7 @@ BODY = '''
 
 body = (BODY.replace('__SWORD_P__', SWORD).replace('__SHIELD_P__', SHIELD).replace('__STAR_P__', STAR).replace('__SKULL__', SKULL)
         .replace('__SCROLL__', svg(SCROLL, 'tab-ico')).replace('__SWORD__', svg(SWORD, 'tab-ico')).replace('__STAR__', svg(STAR, 'tab-ico'))
-        .replace('__DATA__', DATA))
+        .replace('__DATA__', DATA).replace('__READ__', READ).replace('__SEARCH__', SEARCH_JS))
 
 n = write_page('武器・盾モード モック', CSS, body, os.path.join(HERE, '..', 'mocks', 'weapon-shield.html'))
 print('weapon-shield.html', n)
