@@ -54,16 +54,13 @@ CSS = '''
 .keep-note { padding: 2px 14px; border-radius: 999px; background: var(--lg-glass-b); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); font-size: 13px; line-height: 1.7; color: var(--rg-text); text-align: center; }
 
 /* ---- ナビ（武器・盾）：いま調べている条件を要約して出す */
-.ws-sum { justify-self: center; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 2px 10px; min-width: 0; max-width: 100%; padding: 8px 20px; border-radius: 999px;
-  background: var(--lg-input); border: 1px solid var(--lg-edge); font-weight: 700; font-variant-numeric: tabular-nums; }
-.ws-sum span { white-space: nowrap; }
-.ws-sum .dim { color: var(--rg-muted); font-weight: 400; }
+.ws-inputs { justify-self: center; width: 100%; max-width: 720px; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 12px; }
+.pick-meta { font-size: 13.5px; color: var(--rg-muted); font-variant-numeric: tabular-nums; }
 
 /* ---- 条件の面 */
 .ws-panel { z-index: 5; display: grid; gap: 20px; }
 .ws-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
 .ws-hint { flex: 1 1 280px; min-width: 0; line-height: 1.7; }
-.ws-fields { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 16px 20px; align-items: start; }
 .ws-field { display: grid; gap: 8px; min-width: 0; }
 .ws-label { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; font-size: 14px; font-weight: 700; color: var(--rg-accent-text); letter-spacing: .04em; }
 .ws-label small { font-size: 12.5px; font-weight: 400; color: var(--rg-muted); letter-spacing: 0; }
@@ -78,9 +75,8 @@ CSS = '''
 .picked { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 6px 8px 6px 10px; border-radius: 999px; background: var(--lg-input); border: 1px solid var(--lg-edge);
   box-shadow: inset 0 1px 0 var(--lg-spec), 0 4px 14px rgba(8, 14, 38, .12); }
 .picked .cat-ico { width: 38px; height: 38px; padding: 7px; border-radius: 14px; }
-.picked-main { min-width: 0; flex: 1; display: grid; line-height: 1.35; }
-.picked-name { font-size: 19px; font-weight: 700; overflow-wrap: anywhere; }
-.picked-meta { font-size: 12.5px; color: var(--rg-muted); font-variant-numeric: tabular-nums; }
+.picked-name { min-width: 0; flex: 1; font-size: 19px; line-height: 1.35; font-weight: 700; overflow-wrap: anywhere; }
+.name-box .sugg { right: auto; width: max(100%, 380px); max-width: calc(100vw - 32px); }
 .picked .rg-button { min-height: 40px; padding: 4px 14px; }
 .sugg-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 4px 6px 8px; }
 .sugg-head .rg-chip { min-height: 36px; padding: 2px 12px; font-size: 13px; }
@@ -138,12 +134,17 @@ CSS = '''
 
 @media (max-width: 900px) { .steps { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 700px) {
-  .ws-fields { grid-template-columns: minmax(0, 1fr); }
-  .ws-sum { grid-column: 1 / -1; grid-row: 2; justify-self: stretch; padding: 8px 16px; }
+  .ws-inputs { grid-column: 1 / -1; grid-row: 2; max-width: none; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 8px; }
+  .rg-theme .ws-input { min-height: 50px; padding-inline: 14px; font-size: 16px; }
+  .rg-theme .ws-input.num { font-size: 22px; padding-right: 44px; }
+  .picked { min-height: 50px; gap: 8px; padding-left: 14px; }
+  .picked .cat-ico { display: none; }
+  .picked-name { font-size: 16px; }
+  .picked .rg-button { min-height: 36px; padding: 2px 10px; font-size: 13px; }
+  .price-box .price-clear { width: 40px; height: 40px; }
   .app-tabs .seg { width: 100%; }
   .app-tabs .seg button { flex: 1; padding-inline: 10px; }
   .ws-res .plus { min-width: 68px; font-size: 24px; padding-inline: 10px; }
-  .rg-theme .ws-input.num { font-size: 26px; }
 }
 '''.replace('__MEADOW__', png('meadow.png')).replace('__NIGHT__', png('night.png'))
 
@@ -184,7 +185,18 @@ BODY = '''
   <!-- 武器・盾タブのナビ -->
   <header class="rg-nav" id="nav-ws">
     <div class="dock-brand"><h1 class="rg-brand">シレン6 値段識別</h1><span class="rg-muted">武器・盾の強化値</span></div>
-    <div class="ws-sum" id="ws-sum" aria-live="polite"></div>
+    <div class="ws-inputs">
+      <div class="name-box" id="name-box">
+        <label class="rg-visually-hidden" for="ws-name">武器・盾の名前</label>
+        <input class="rg-input ws-input" id="ws-name" type="text" autocomplete="off" spellcheck="false" placeholder="名前を入力（かたな、katana）" aria-controls="ws-sugg">
+        <div class="picked" id="picked" hidden></div>
+        <div class="sugg" id="ws-sugg" hidden></div>
+      </div>
+      <div class="price-box">
+        <input class="rg-input ws-input num" id="ws-price" type="text" inputmode="numeric" autocomplete="off" maxlength="9" placeholder="買値を入力" aria-label="ゲーム内で見えた買値（ギタン）">
+        <button class="price-clear" id="ws-clear" type="button" aria-label="入力した値段を消す" hidden><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg></button>
+      </div>
+    </div>
     <button class="rg-button" type="button" id="ws-reset">入力を消す</button>
   </header>
 
@@ -204,23 +216,7 @@ BODY = '''
         </div>
         <p class="rg-muted ws-hint" id="ws-hint"></p>
       </div>
-      <div class="ws-fields">
-        <div class="ws-field">
-          <div class="ws-label"><span>武器・盾の名前</span></div>
-          <div class="name-box" id="name-box">
-            <input class="rg-input ws-input" id="ws-name" type="text" autocomplete="off" spellcheck="false" placeholder="名前を入力（例：かたな、katana）" aria-controls="ws-sugg">
-            <div class="picked" id="picked" hidden></div>
-            <div class="sugg" id="ws-sugg" hidden></div>
-          </div>
-        </div>
-        <div class="ws-field">
-          <div class="ws-label"><span>値段</span><small>お店で見える買値</small></div>
-          <div class="price-box">
-            <input class="rg-input ws-input num" id="ws-price" type="text" inputmode="numeric" autocomplete="off" maxlength="9" placeholder="買値を入力" aria-label="ゲーム内で見えた買値（ギタン）">
-            <button class="price-clear" id="ws-clear" type="button" aria-label="入力した値段を消す" hidden><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg></button>
-          </div>
-        </div>
-      </div>
+      <p class="pick-meta" id="pick-meta" hidden></p>
       <div class="seal-box" id="seal-box" hidden>
         <div class="ws-label"><span>追加で付いている印</span><small id="seal-sum"></small></div>
         <div class="seal-chips" id="seal-chips"></div>
@@ -327,20 +323,16 @@ BODY = '''
     $('view-ws').hidden = !ws; $('nav-ws').hidden = !ws; $('view-tool').hidden = ws; $('nav-tool').hidden = ws;
     $('tool-keep').textContent = S.toolPrice ? fmt(S.toolPrice) + ' ギタン' : '（なし）';
   }
-  function renderSum() {
-    var it = item(), p = S.price ? fmt(S.price) : '';
-    var h = '<span>' + (it ? esc(it.n) : '<span class="dim">名前を選んでください</span>') + '</span><span class="dim">' + (S.g === 'j' ? '神器' : '通常') + '</span><span>' + (p ? p + ' ギタン' : '<span class="dim">買値を入力</span>') + '</span>';
-    $('ws-sum').innerHTML = h;
-  }
   function renderPick() {
     var it = item(), box = $('picked');
     $('ws-name').hidden = !!it; box.hidden = !it;
     $('ws-hint').textContent = HINT[S.g];
     $('seal-box').hidden = !(S.g === 'j');
     if (it) {
-      box.innerHTML = ico(S.pick.k === 'w' ? P.w : P.s) + '<div class="picked-main"><span class="picked-name">' + esc(it.n) + '</span><span class="picked-meta">' + (S.pick.k === 'w' ? '武器' : '盾') + '・基礎値 ' + it.base + '・印数 ' + it.slots +
-        (it.seal ? '・最初から ' + esc(it.seal) : '') + '・' + (S.g === 'j' ? '神器の買値 ' + fmt(it.buy * 2) : '買値 ' + fmt(it.buy)) + '</span></div><button class="rg-button" type="button" id="re-pick">変更</button>';
+      box.innerHTML = ico(S.pick.k === 'w' ? P.w : P.s) + '<span class="picked-name">' + esc(it.n) + '</span><button class="rg-button" type="button" id="re-pick" aria-label="名前を選び直す">変更</button>';
     }
+    var pm = $('pick-meta'); pm.hidden = !it;
+    if (it) pm.textContent = (S.pick.k === 'w' ? '武器' : '盾') + '・基礎値 ' + it.base + '・印数 ' + it.slots + (it.seal ? '・最初から ' + it.seal : '') + '・' + (S.g === 'j' ? '神器の買値 ' + fmt(it.buy * 2) : '買値 ' + fmt(it.buy));
   }
   function renderSugg() {
     var box = $('ws-sugg');
@@ -404,7 +396,7 @@ BODY = '''
     box.innerHTML = '<section class="rg-surface res-sec res-ws" aria-label="判定">' +
       '<h2 class="rg-heading res-head">' + esc(it.n) + (S.g === 'j' ? '（神器）' : '') + ' ・ 買値 <span class="res-num">' + fmt(p) + '</span><span class="res-count">' + vs.length + '件</span></h2>' + body + '</section>';
   }
-  function renderAll() { renderTabs(); renderSum(); renderPick(); renderSugg(); renderSeals(); renderResults();
+  function renderAll() { renderTabs(); renderPick(); renderSugg(); renderSeals(); renderResults();
     document.querySelectorAll('.ws-top [data-g]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-g') === S.g)); }); }
 
   /* ---------- 操作 ---------- */
@@ -425,7 +417,7 @@ BODY = '''
   });
   $('ws-name').addEventListener('input', function () { S.q = this.value; renderSugg(); });
   $('ws-name').addEventListener('focus', renderSugg);
-  $('ws-price').addEventListener('input', function () { this.value = this.value.replace(/[^0-9]/g, ''); S.price = this.value; renderSum(); renderResults(); $('ws-clear').hidden = !S.price; });
+  $('ws-price').addEventListener('input', function () { this.value = this.value.replace(/[^0-9]/g, ''); S.price = this.value; renderResults(); $('ws-clear').hidden = !S.price; });
   $('seal-q').addEventListener('input', function () { S.sealQ = this.value; renderSeals(); });
   $('tool-price').addEventListener('input', function () { this.value = this.value.replace(/[^0-9]/g, ''); S.toolPrice = this.value; });
   $('tool-price').value = S.toolPrice;
