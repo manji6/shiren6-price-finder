@@ -452,12 +452,129 @@ html.name-mode .price-input { font-size: 22px; letter-spacing: 0; }
   .price-wrap:has(.price-clear:not([hidden])) .price-input { padding-right: 178px; }
   .mode-seg button { padding-inline: 12px; }
 }
+
+/* ===== 武器・盾タブ（買値から強化値と呪いを調べる） ===== */
+/* ---- 上部のタブ「道具｜武器・盾」 */
+.app-tabs { width: min(1180px, 100%); margin: 0 auto 12px; display: grid; justify-items: center; gap: 6px; }
+.seg { display: inline-flex; padding: 4px; gap: 4px; border-radius: 999px; max-width: 100%;
+  background: linear-gradient(165deg, var(--lg-glass-a), var(--lg-glass-b)); border: 1px solid var(--lg-edge);
+  -webkit-backdrop-filter: blur(18px) saturate(1.7); backdrop-filter: blur(18px) saturate(1.7);
+  box-shadow: inset 0 1px 0 var(--lg-spec), inset 0 -1px 0 var(--lg-edge-soft), 0 10px 28px var(--lg-shadow); }
+.seg button { appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 4px 20px; border: 0; border-radius: 999px; background: transparent;
+  color: var(--rg-muted); font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: background-color var(--rg-fast) ease, color var(--rg-fast) ease; }
+.seg button[aria-pressed="true"], .seg button[aria-selected="true"] { background: linear-gradient(165deg, var(--lg-pressed-a), var(--lg-pressed-b)); color: var(--rg-chip-on-text);
+  box-shadow: inset 0 1px 0 var(--lg-spec), 0 3px 10px rgba(42, 108, 184, .28); }
+.seg button:focus-visible { outline: 2px solid var(--rg-accent); outline-offset: 1px; }
+.seg svg { width: 22px; height: 22px; flex: none; }
+.seg-lg button { min-height: 50px; padding-inline: 30px; font-size: 17px; }
+.keep-note { padding: 2px 14px; border-radius: 999px; background: var(--lg-glass-b); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); font-size: 13px; line-height: 1.7; color: var(--rg-text); text-align: center; }
+
+/* ---- ナビ（武器・盾）：名前と買値の入力欄 */
+.ws-inputs { justify-self: center; width: 100%; max-width: 720px; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 12px; }
+.pick-meta { font-size: 13.5px; color: var(--rg-muted); font-variant-numeric: tabular-nums; }
+
+/* ---- 条件の面 */
+.ws-panel { z-index: 5; display: grid; gap: 20px; }
+.ws-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+.ws-label { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; font-size: 14px; font-weight: 700; color: var(--rg-accent-text); letter-spacing: .04em; }
+.ws-label small { font-size: 12.5px; font-weight: 400; color: var(--rg-muted); letter-spacing: 0; }
+.name-box { position: relative; }
+.rg-theme .ws-input { height: 56px; min-height: 56px; line-height: 1.3; border-radius: 999px; padding: 8px 22px 8px 26px; font-size: 20px; font-weight: 700; background: var(--lg-input); border: 1px solid var(--lg-edge);
+  box-shadow: inset 0 2px 8px rgba(10, 24, 60, .10), inset 0 1px 0 var(--lg-spec), 0 4px 14px rgba(8, 14, 38, .16); }
+.rg-theme .ws-input.num { font-size: 28px; font-variant-numeric: tabular-nums; letter-spacing: .02em; padding-right: 54px; }
+.rg-theme .ws-input.num::placeholder, .rg-theme .ws-input::placeholder { font-size: 16px; font-weight: 400; letter-spacing: 0; }
+.rg-theme .ws-input:focus-visible { outline: 0; border-color: var(--rg-accent); box-shadow: 0 0 0 4px rgba(76, 147, 224, .32), inset 0 2px 8px rgba(10, 24, 60, .10), 0 6px 22px rgba(42, 108, 184, .35); }
+.price-box { position: relative; }
+.price-box .price-clear { right: 6px; }
+.picked { display: flex; align-items: center; gap: 12px; height: 56px; min-height: 56px; padding: 6px 8px 6px 10px; border-radius: 999px; background: var(--lg-input); border: 1px solid var(--lg-edge);
+  box-shadow: inset 0 1px 0 var(--lg-spec), 0 4px 14px rgba(8, 14, 38, .12); }
+.picked .cat-ico { width: 38px; height: 38px; padding: 7px; border-radius: 14px; }
+.picked-name { min-width: 0; flex: 1; font-size: 19px; line-height: 1.35; font-weight: 700; overflow-wrap: anywhere; }
+.name-box .sugg { right: auto; width: max(100%, 380px); max-width: calc(100vw - 32px); }
+.picked .rg-button { min-height: 40px; padding: 4px 14px; }
+.sugg-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 4px 6px 8px; }
+.sugg-head .rg-chip { min-height: 36px; padding: 2px 12px; font-size: 13px; }
+.sug .cat-ico { flex: none; }
+.sug .sug-main { display: grid; line-height: 1.4; }
+.sug .sug-main small { font-size: 12.5px; font-weight: 400; color: var(--rg-muted); }
+
+/* 神器の印 */
+.seal-box { display: grid; gap: 10px; }
+.seal-chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.seal-chips .rg-chip { min-height: 40px; padding: 4px 8px 4px 14px; }
+.seal-chips .rg-chip svg { width: 16px; height: 16px; opacity: .8; }
+.seal-chips .price { font-size: 12.5px; font-weight: 400; opacity: .85; font-variant-numeric: tabular-nums; }
+.seal-chips .rg-chip.own { padding-right: 14px; cursor: default; }
+.seal-add { min-height: 40px; padding: 4px 16px; }
+.seal-panel { display: grid; gap: 10px; padding: 14px; border-radius: 24px; background: var(--rg-solid-surface); border: 1px solid var(--lg-edge); box-shadow: inset 0 1px 0 var(--lg-spec); }
+.seal-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 6px; max-height: 300px; overflow: auto; padding: 2px; }
+.seal-opt { appearance: none; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 6px 12px; border: 1px solid transparent; border-radius: 16px; background: transparent; color: var(--rg-text);
+  font: inherit; font-size: 14.5px; font-weight: 700; text-align: left; cursor: pointer; }
+.seal-opt:hover { background: var(--lg-input); }
+.seal-opt:focus-visible { outline: 2px solid var(--rg-accent); outline-offset: 1px; }
+.seal-opt[aria-pressed="true"] { background: var(--rg-chip-on-bg); border-color: var(--rg-chip-on-border); color: var(--rg-chip-on-text); }
+.seal-opt:disabled { opacity: .45; cursor: default; }
+.seal-opt .ab { flex: none; min-width: 34px; height: 28px; padding: 0 4px; display: grid; place-items: center; border-radius: 9px; background: var(--rg-chip-on-bg); color: var(--rg-chip-on-text); font-size: 12px; }
+.seal-opt[aria-pressed="true"] .ab { background: var(--rg-solid-surface); color: var(--rg-accent-text); }
+.seal-opt .nm2 { min-width: 0; display: grid; line-height: 1.35; }
+.seal-opt small { font-size: 12px; font-weight: 400; color: var(--rg-muted); }
+.seal-opt[aria-pressed="true"] small { color: inherit; opacity: .85; }
+.tag-nat { color: var(--st-b-text); border-color: var(--st-b-line); background: var(--st-b-weak); font-weight: 700; }
+.tag-jingi { color: var(--st-b-text); border-color: var(--st-b-line); background: var(--st-b-weak); }
+.tag-jingi svg { width: 14px; height: 14px; margin-right: 4px; }
+
+/* 結果の行：右に大きく強化値 */
+.ws-res .plus { min-width: 84px; padding: 4px 16px; border-radius: 20px; text-align: center; font-size: 30px; line-height: 1.4; font-weight: 700; font-variant-numeric: tabular-nums;
+  background: var(--rg-chip-on-bg); color: var(--rg-chip-on-text); }
+.rg-list-row.st-c.ws-res .plus { background: var(--st-c-wash2); color: var(--st-c-text); box-shadow: 0 0 0 1.5px var(--st-c-line); }
+.ws-res .ans { font-size: 1.15em; font-variant-numeric: tabular-nums; }
+.rg-list-row.st-c .ans { color: var(--st-c-text); }
+.res-ws { grid-column: 1 / -1; }
+.ws-res .calc { color: var(--rg-muted); font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.near { display: grid; gap: 4px; margin-top: 10px; padding: 10px 14px; border-radius: 16px; background: var(--lg-input); font-size: 14px; color: var(--rg-muted); font-variant-numeric: tabular-nums; }
+.near b { color: var(--rg-text); }
+.near p { font-size: 13px; }
+.near-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.st-tag { flex: none; min-width: 3.2em; padding: 0 10px; border-radius: 999px; text-align: center; font-size: 12.5px; font-weight: 700; line-height: 1.7; background: var(--rg-chip-on-bg); color: var(--rg-chip-on-text); }
+.st-tag.c { background: var(--st-c-wash2); color: var(--st-c-text); }
+.hero-ws { grid-column: 1 / -1; display: grid; gap: 14px; }
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 4px; }
+.steps li { padding: 14px 16px; border-radius: 20px; background: var(--lg-input); line-height: 1.7; }
+.steps b { display: block; color: var(--rg-accent-text); }
+
+@media (max-width: 900px) { .steps { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 700px) {
+  .ws-inputs { grid-column: 1 / -1; grid-row: 2; max-width: none; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 8px; }
+  .rg-theme .ws-input { padding-inline: 14px; font-size: 16px; }
+  .rg-theme .ws-input.num { font-size: 22px; padding-right: 44px; }
+  .picked { gap: 8px; padding-left: 14px; }
+  .picked .cat-ico { display: none; }
+  .picked-name { font-size: 16px; }
+  .picked .rg-button { min-height: 36px; padding: 2px 10px; font-size: 13px; }
+  .price-box .price-clear { width: 40px; height: 40px; }
+  .app-tabs .seg { width: 100%; }
+  .app-tabs .seg button { flex: 1; padding-inline: 10px; }
+  .ws-res .plus { min-width: 68px; font-size: 24px; padding-inline: 10px; }
+}
+
+@media (prefers-reduced-transparency: reduce) { .rg-theme :is(.seg, .keep-note) { background: var(--rg-solid-surface); -webkit-backdrop-filter: none; backdrop-filter: none; } }
+@media (forced-colors: active) { .rg-theme :is(.seg, .keep-note, .ws-input, .picked, .seal-panel) { background: Canvas; color: CanvasText; border: 1px solid ButtonBorder; box-shadow: none; backdrop-filter: none; } }
 </style>
 </head>
 <body>
 
 <div class="rg-theme" id="app">
   <div class="lg-scene" aria-hidden="true"></div>
+
+  <div class="app-tabs">
+    <div class="seg seg-lg" role="tablist" aria-label="調べるもの">
+      <button type="button" role="tab" id="tab-tool" data-tab="tool" aria-selected="true" aria-controls="view-tool"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h11v13a3 3 0 0 1-3 3H6a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3h2z"/><path d="M12.5 9H16M12.5 12.5H16"/></svg>道具</button>
+      <button type="button" role="tab" id="tab-ws" data-tab="ws" aria-selected="false" aria-controls="view-ws"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 3.5h6v6l-9.5 9.5-6-6z"/><path d="M6.5 14.5l-2.5 2.5M9.5 17.5L7 20M3.5 20.5l2-2"/></svg>武器・盾</button>
+    </div>
+    <p class="keep-note">タブを切り替えても、もう一方の入力と判断済みはそのまま残ります。</p>
+  </div>
+
+  <div id="view-tool" role="tabpanel" aria-labelledby="tab-tool">
 
   <header class="rg-nav">
     <div class="dock-brand">
@@ -502,7 +619,7 @@ html.name-mode .price-input { font-size: 22px; letter-spacing: 0; }
       <div class="rg-document-row">
         <h2 class="rg-heading">対象と制限</h2>
         <div class="rg-copy">
-          <p>対象は巻物・草と種・腕輪・杖・壺です。武器・盾・矢・石・食料・桃まん・お香は、値段で種類を見分けられないため含めていません。ぬれた巻物・雑草・脱出の巻物・白紙の巻物は最初から名前が分かるので除外しています。</p>
+          <p>対象は巻物・草と種・腕輪・杖・壺です。矢・石・食料・桃まん・お香は、値段で種類を見分けられないため含めていません。武器・盾は、上の「武器・盾」タブで、買値から強化値と呪いを調べられます。ぬれた巻物・雑草・脱出の巻物・白紙の巻物は最初から名前が分かるので除外しています。</p>
           <p>胃縮小の腕輪・垂れ流しの腕輪・金垂れ流しの腕輪は常に呪われているため、呪い状態の値段だけを載せています。杖の回数は0〜7、壺の容量は入手時の下限から6までを対象にしています。</p>
         </div>
       </div>
@@ -512,6 +629,71 @@ html.name-mode .price-input { font-size: 22px; letter-spacing: 0; }
       <p><a class="rg-link" href="/changelog/">更新履歴</a></p>
     </footer>
   </main>
+
+  </div>
+
+  <div id="view-ws" role="tabpanel" aria-labelledby="tab-ws" hidden>
+    <header class="rg-nav">
+      <div class="dock-brand"><h1 class="rg-brand">シレン6 値段識別</h1><span class="rg-muted">武器・盾の強化値</span></div>
+      <div class="ws-inputs">
+        <div class="name-box" id="name-box">
+          <label class="rg-visually-hidden" for="ws-name">武器・盾の名前</label>
+          <input class="rg-input ws-input" id="ws-name" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" placeholder="名前を入力（かたな、katana）" aria-controls="ws-sugg">
+          <div class="picked" id="picked" hidden></div>
+          <div class="sugg" id="ws-sugg" hidden></div>
+        </div>
+        <div class="price-box">
+          <label class="rg-visually-hidden" for="ws-price">ゲーム内で見えた買値（ギタン）</label>
+          <input class="rg-input ws-input num" id="ws-price" type="text" inputmode="numeric" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" maxlength="9" placeholder="買値を入力">
+          <button class="price-clear" id="ws-clear" type="button" aria-label="入力した値段を消す" hidden><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg></button>
+        </div>
+      </div>
+      <button class="rg-button" type="button" id="ws-reset">入力を消す</button>
+    </header>
+
+    <main class="rg-page rg-stack">
+      <section class="rg-surface ws-panel" aria-label="調べる武器・盾の条件">
+        <div class="ws-top">
+          <div class="seg" role="group" aria-label="通常か神器か">
+            <button type="button" data-g="n" aria-pressed="true">通常</button><button type="button" data-g="j" aria-pressed="false"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.2l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.5l6-.8z"/></svg>神器</button>
+          </div>
+        </div>
+        <p class="pick-meta" id="pick-meta" hidden></p>
+        <div class="seal-box" id="seal-box" hidden>
+          <div class="ws-label"><span>付いている印</span><small id="seal-sum"></small></div>
+          <div class="seal-chips" id="seal-chips"></div>
+          <div class="seal-panel" id="seal-panel" hidden>
+            <input class="rg-input" id="seal-q" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="印の名前で絞り込み（例：会心、kaishin）" aria-label="印の名前で絞り込み">
+            <div class="seal-list" id="seal-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="results-grid" id="ws-results"></div>
+
+      <section class="rg-surface" aria-label="武器・盾の価格の見方">
+        <div class="rg-document-row">
+          <h2 class="rg-heading">計算のしくみ</h2>
+          <div class="rg-copy">
+            <p>通常の武器・盾は、買値が「基礎の買値＋100×強化値」です。最初から付いている印は、基礎の値段に含まれています。</p>
+            <p>神器は、基礎の値段が2倍になり、追加で付いた印の値段が足されます。強化値の加算は2倍になりません。青神器・金神器の違いでも値段は変わりません。</p>
+            <p>呪われていると、買値は合計が87%（小数点以下切り捨て）になります。祝福は、武器・盾にはありません。</p>
+          </div>
+        </div>
+        <div class="rg-document-row">
+          <h2 class="rg-heading">対象と制限</h2>
+          <div class="rg-copy">
+            <p>強化値は −9〜+99 を対象にしています。印を銀封印しても、印数を増やしても、値段は変わりません。</p>
+            <p>値段が複数の候補に当たるときは、すべて並べます。売値は対象にしていません。印の値段はWikiの検証値（コミュニティ報告）で、確定情報ではありません。神器の最初から付いている印は、基礎の値段に含まれるものとして計算しています。</p>
+          </div>
+        </div>
+      </section>
+      <footer class="site-foot rg-muted">
+        <p>風来のシレン6の非公式ファンツールです。ゲーム内の名称・データの権利は、それぞれの権利者に帰属します。</p>
+        <p><a class="rg-link" href="/changelog/">更新履歴</a></p>
+      </footer>
+    </main>
+  </div>
 
   <dialog class="rg-dialog" id="reset-dialog" aria-labelledby="reset-title">
     <h2 class="rg-heading" id="reset-title">判断完了のマークを消しますか</h2>
@@ -526,7 +708,9 @@ html.name-mode .price-input { font-size: 22px; letter-spacing: 0; }
 <script>
 (function () {
   var DATA = /*DATA*/;
-  var READINGS = /*READINGS*/;   // 名前 → 読み仮名（ひらがな。別の読みは | 区切り）。tools/make_readings.py で生成
+  var READINGS = /*READINGS*/;
+  var WS = /*WS*/;               // 武器・盾・印の値段データ。tools/build_ws_data.py → ws_data.json
+  var WSREAD = /*WSREAD*/;       // 武器・盾・印の読み仮名。tools/make_ws_readings.py → ws_readings.json   // 名前 → 読み仮名（ひらがな。別の読みは | 区切り）。tools/make_readings.py で生成
   var CATS = ['巻物', '草・種', '腕輪', '杖', '壺'];
   var ST = { n: '通常', b: '祝福', c: '呪い' };
   var STATE_ORDER = { n: 0, b: 1, c: 2 };
@@ -869,6 +1053,184 @@ html.name-mode .price-input { font-size: 22px; letter-spacing: 0; }
   });
   dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
   dlg.addEventListener('close', function () { if (document.activeElement === document.body) $('reset').disabled ? $('price').focus() : $('reset').focus(); });
+
+  // ---- 武器・盾タブ: 名前と買値から、強化値と呪いを逆算する ----
+  // 買値 = 基礎の買値（神器は2倍）＋ 追加した印の買値 ＋ 100 ×強化値。呪われていると、この合計の87%（小数点以下切り捨て）
+  (function () {
+    var NMIN = -9, NMAX = 99, CURSE = 0.87, TAB_KEY = 'shiren6-tab-v1';
+    var W = { g: 'n', kind: '', pick: null, q: '', price: '', seals: [], sealOpen: false, sealQ: '' };
+    var ICO_W = '<path d="M14.5 3.5h6v6l-9.5 9.5-6-6z"/><path d="M6.5 14.5l-2.5 2.5M9.5 17.5L7 20M3.5 20.5l2-2"/>', ICO_S = '<path d="M12 3l7 2.5v6c0 4.4-3 7.4-7 9.5-4-2.1-7-5.1-7-9.5v-6z"/><path d="M12 7.5v10"/>', ICO_STAR = '<path d="M12 3.2l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.5l6-.8z"/>', ICO_X = '<path d="M6 6l12 12M18 6L6 18"/>';
+    var wico = function (inner, cls) { return '<svg class="' + (cls || 'cat-ico') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + '</svg>'; };
+    var sgn = function (n) { return n >= 0 ? '+' + n : '−' + Math.abs(n); };
+    var nameEl = $('ws-name'), priceEl2 = $('ws-price'), suggEl = $('ws-sugg'), nameBox = $('name-box');
+
+    // 名前の検索（漢字・読み・ローマ字）。道具の名前検索と同じ規則
+    var wHay = {}, wHayL = {};
+    function wHit(n, query) {
+      var qn = kn(query); if (!qn) return true;
+      if (!wHay[n]) { wHay[n] = kn(n) + '|' + kn(WSREAD[n] || ''); wHayL[n] = lite(wHay[n]); }
+      if (wHay[n].indexOf(qn) >= 0) return true;
+      var ka = /[a-z]/.test(qn) ? kn(romaji2kana(qn)) : '';
+      if (ka && wHay[n].indexOf(ka) >= 0) return true;
+      return wHayL[n].indexOf(lite(qn)) >= 0 || !!(ka && wHayL[n].indexOf(lite(ka)) >= 0);
+    }
+    function wRank(n, query) {
+      var qn = kn(query), ka = /[a-z]/.test(qn) ? kn(romaji2kana(qn)) : '';
+      return wHay[n].split('|').some(function (p) { return (qn && p.indexOf(qn) === 0) || (ka && p.indexOf(ka) === 0); }) ? 0 : 1;
+    }
+
+    function item() { return W.pick ? (W.pick.k === 'w' ? WS.weapons : WS.shields)[W.pick.i] : null; }
+    function sealsFor(k) { return WS.seals.filter(function (s) { return s.k === k; }); }
+    function sealBy(k, no) { return WS.seals.filter(function (s) { return s.k === k && s.no === no; })[0]; }
+    function ownSeal(it) { return it && it.seal ? sealsFor(W.pick.k).filter(function (x) { return x.n === it.seal; })[0] : null; }
+
+    // ---------- 計算 ----------
+    function fixedPrice(it) {
+      var sum = 0;
+      W.seals.forEach(function (no) { var x = sealBy(W.pick.k, no); if (x) sum += x.buy; });
+      return it.buy * (W.g === 'j' ? 2 : 1) + sum;
+    }
+    function priceOf(it, n, st) { var v = fixedPrice(it) + 100 * n; return st === 'c' ? Math.floor(v * CURSE) : v; }
+    function solve(it, p) {
+      var out = [];
+      ['n', 'c'].forEach(function (st) { for (var n = NMIN; n <= NMAX; n++) if (priceOf(it, n, st) === p) { out.push({ st: st, n: n }); break; } });
+      return out;
+    }
+    function near(it, p, st) {
+      var lo = null, res = [];
+      for (var n = NMIN; n <= NMAX; n++) if (priceOf(it, n, st) <= p) lo = n;
+      [lo, lo === null ? NMIN : lo + 1].forEach(function (n) { if (n !== null && n >= NMIN && n <= NMAX) res.push({ n: n, v: priceOf(it, n, st) }); });
+      return res;
+    }
+
+    // ---------- 描画 ----------
+    function renderPick() {
+      var it = item(), box = $('picked');
+      nameEl.hidden = !!it; box.hidden = !it;
+      $('seal-box').hidden = W.g !== 'j';
+      document.querySelectorAll('.ws-top [data-g]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-g') === W.g)); });
+      if (it) box.innerHTML = wico(W.pick.k === 'w' ? ICO_W : ICO_S) + '<span class="picked-name">' + esc(it.n) + '</span><button class="rg-button" type="button" id="ws-repick" aria-label="名前を選び直す">変更</button>';
+      var pm = $('pick-meta'); pm.hidden = !it;
+      if (it) { var kind = W.pick.k === 'w' ? '武器' : '盾'; pm.textContent = kind + '・基礎値 ' + it.base + '・印数 ' + it.slots + '・' + (W.g === 'j' ? '神器の買値 ' + fmt(it.buy * 2) + '（基本印のみ）' : kind + 'の買値 ' + fmt(it.buy)); }
+    }
+    function renderSugg() {
+      if (W.pick || (document.activeElement !== nameEl && !W.q)) { suggEl.hidden = true; return; }
+      var all = [], qq = W.q.trim();
+      WS.weapons.forEach(function (x, i) { all.push({ k: 'w', i: i, x: x }); }); WS.shields.forEach(function (x, i) { all.push({ k: 's', i: i, x: x }); });
+      var list = all.filter(function (e) { return (!W.kind || e.k === W.kind) && wHit(e.x.n, qq); });
+      if (qq) list.sort(function (a, b) { return wRank(a.x.n, qq) - wRank(b.x.n, qq); });
+      var head = '<div class="sugg-head">' + [['', 'すべて'], ['w', '武器'], ['s', '盾']].map(function (c) { return '<button class="rg-chip" type="button" data-kind="' + c[0] + '" aria-pressed="' + (W.kind === c[0]) + '">' + c[1] + '</button>'; }).join('') + '</div>';
+      var rows = list.slice(0, 7).map(function (e) {
+        return '<button class="sug" type="button" data-pk="' + e.k + ':' + e.i + '">' + wico(e.k === 'w' ? ICO_W : ICO_S) + '<span class="sug-main"><span>' + esc(e.x.n) + '</span><small>基礎値 ' + e.x.base + '・印数 ' + e.x.slots + '</small></span><em>' + (W.g === 'j' ? '神器 ' + fmt(e.x.buy * 2) : fmt(e.x.buy)) + '</em></button>';
+      }).join('');
+      var note = list.length > 7 ? '<p class="sug-note">ほか ' + (list.length - 7) + ' 件。名前を入力して絞り込めます。</p>' : (list.length ? '' : '<p class="sug-note">「' + esc(qq) + '」に一致する武器・盾はありません。</p>');
+      suggEl.innerHTML = head + rows + note; suggEl.hidden = false;
+    }
+    function renderSeals() {
+      if (W.g !== 'j') return;
+      var it = item(), tb = 0, own = ownSeal(it);
+      var h = own ? '<span class="rg-chip own" aria-pressed="true">' + esc(own.n) + '<span class="price">基本の印</span></span>' : '';
+      h += W.seals.map(function (no) {
+        var s = sealBy(W.pick.k, no); tb += s.buy;
+        return '<button class="rg-chip" type="button" data-rm="' + no + '" aria-label="印「' + esc(s.n) + '」を外す" aria-pressed="true">' + esc(s.n) + '<span class="price">+' + fmt(s.buy) + '</span>' + wico(ICO_X, 'i') + '</button>';
+      }).join('');
+      h += '<button class="rg-button seal-add" type="button" id="seal-toggle" aria-expanded="' + (W.sealOpen && !!it) + '"' + (it ? '' : ' disabled') + '>' + (W.sealOpen ? '閉じる' : '＋ 印を追加') + '</button>';
+      $('seal-chips').innerHTML = h;
+      $('seal-sum').textContent = it ? (W.seals.length ? '強化値 0・呪いなしの買値：' + fmt(it.buy * 2 + tb) : '') : '先に名前を選んでください';
+      $('seal-panel').hidden = !(W.sealOpen && it);
+      if (W.sealOpen && it) {
+        var q = W.sealQ.trim();
+        $('seal-list').innerHTML = sealsFor(W.pick.k).filter(function (s) { return !q || wHit(s.n, q) || kn(s.ab).indexOf(kn(q)) >= 0; }).map(function (s) {
+          var isOwn = it.seal && it.seal === s.n, on = W.seals.indexOf(s.no) >= 0;
+          return '<button class="seal-opt" type="button" data-sno="' + s.no + '" aria-pressed="' + (on || !!isOwn) + '"' + (isOwn ? ' disabled' : '') + '><span class="ab">' + esc(s.ab) + '</span><span class="nm2"><span>' + esc(s.n) + (s.nat ? ' <span class="tag tag-nat">天然</span>' : '') + '</span><small>' + (isOwn ? '基本の印として付いています' : '+' + fmt(s.buy) + ' ギタン') + '</small></span></button>';
+        }).join('') || '<p class="rg-muted" style="padding:8px">該当する印がありません。</p>';
+      }
+    }
+    function variantRow(it, v) {
+      var cur = v.st === 'c', fx = fixedPrice(it), val = priceOf(it, v.n, v.st);
+      var calc = fmt(fx) + (v.n < 0 ? ' − ' : ' + ') + '100 × ' + Math.abs(v.n);
+      calc = cur ? '(' + calc + ') × 0.87 ＝ ' + fmt(val) + '（小数点以下切り捨て）' : calc + ' ＝ ' + fmt(val);
+      var jt = W.g === 'j' ? '<span class="tag tag-jingi">' + wico(ICO_STAR, 'i') + '神器</span>' : '';
+      var word = '<b class="ans">' + sgn(v.n) + (cur ? '（呪い）' : '') + '</b>';
+      return '<li class="rg-list-row ws-res ' + (cur ? 'st-c' : 'st-n') + '"><div><p class="rg-list-title"><span class="nm">' + wico(W.pick.k === 'w' ? ICO_W : ICO_S) + '<span>この値段の' + esc(it.n) + 'は ' + word + (cur ? '' : ' ') + 'です</span></span>' + jt + '</p>' +
+        '<div class="rg-list-copy"><span class="var calc">' + calc + '</span></div></div>' +
+        '<span class="plus" aria-hidden="true">' + sgn(v.n) + '</span></li>';
+    }
+    function renderResults() {
+      var box = $('ws-results'), it = item(), p = W.price ? parseInt(W.price, 10) : null;
+      $('ws-clear').hidden = !W.price;
+      if (!it || !p) {
+        box.innerHTML = '<section class="rg-surface hero-ws rg-enter"><h2 class="rg-heading">名前と買値から、強化値と呪いを調べます</h2>' +
+          '<p class="rg-copy">ゲームで見えた武器・盾の名前を選び、買値を入力してください。' + (it ? '' : '先に名前を選ぶと、買値の入力欄で計算が始まります。') + '</p>' +
+          '<ul class="steps"><li><b>1. 通常か神器かを選ぶ</b>神器のときは、付いている印も選びます。</li><li><b>2. 名前を選ぶ</b>かな・ローマ字でも探せます。</li><li><b>3. 買値を入れる</b>当てはまる強化値と、呪いの有無を出します。</li></ul></section>';
+        return;
+      }
+      var vs = solve(it, p), body;
+      if (vs.length) body = '<ul>' + vs.map(function (v) { return variantRow(it, v); }).join('') + '</ul>';
+      else {
+        var line = function (st) {
+          var xs = near(it, p, st).filter(function (x) { return Math.abs(x.v - p) <= 150; });
+          return xs.length ? '<span class="near-row"><span class="st-tag' + (st === 'c' ? ' c' : '') + '">' + (st === 'c' ? '呪い' : '通常') + '</span>' + xs.map(function (x) { return '<b>' + sgn(x.n) + '</b> のとき ' + fmt(x.v); }).join(' ／ ') + '</span>' : '';
+        };
+        body = '<p class="empty-box">買値が <strong>' + fmt(p) + '</strong> になる強化値はありません。</p>' +
+          (near(it, p, 'n').concat(near(it, p, 'c')).some(function (x) { return Math.abs(x.v - p) <= 150; })
+            ? '<div class="near"><p>近い値（読み間違いや、印の選び漏れがないか確かめてください）</p>' + line('n') + line('c') + '</div>'
+            : '<p class="near">この値段は、強化値 ' + sgn(NMIN) + '〜' + sgn(NMAX) + ' の範囲に近い値がありません。名前や印の選び間違いがないか確かめてください。</p>');
+      }
+      box.innerHTML = '<section class="rg-surface res-sec res-ws rg-enter" aria-label="判定結果" aria-live="polite">' +
+        '<h2 class="rg-heading res-head">' + esc(it.n) + (W.g === 'j' ? '（神器）' : '') + ' ・ 買値 <span class="res-num">' + fmt(p) + '</span><span class="res-count">' + vs.length + '件</span></h2>' + body + '</section>';
+    }
+    function renderAll() { renderPick(); renderSugg(); renderSeals(); renderResults(); }
+
+    // ---------- 操作 ----------
+    function setPick(k, i) {
+      W.pick = { k: k, i: i }; W.seals = []; W.q = ''; nameEl.value = ''; W.sealOpen = false; W.sealQ = ''; $('seal-q').value = '';
+      renderAll(); priceEl2.focus({ preventScroll: true });
+    }
+    function clearPick() { W.pick = null; W.seals = []; W.sealOpen = false; renderAll(); nameEl.focus({ preventScroll: true }); }
+    $('view-ws').addEventListener('click', function (e) {
+      var t = e.target.closest('button'); if (!t) return;
+      if (t.dataset.g) { W.g = t.dataset.g; W.seals = []; W.sealOpen = false; renderAll(); return; }
+      if (t.dataset.pk) { var a = t.dataset.pk.split(':'); setPick(a[0], +a[1]); return; }
+      if (t.dataset.kind !== undefined && suggEl.contains(t)) { W.kind = t.dataset.kind; renderSugg(); nameEl.focus({ preventScroll: true }); return; }
+      if (t.id === 'ws-repick') { clearPick(); return; }
+      if (t.id === 'seal-toggle') { W.sealOpen = !W.sealOpen; renderSeals(); if (W.sealOpen) $('seal-q').focus({ preventScroll: true }); return; }
+      if (t.dataset.rm) { W.seals = W.seals.filter(function (n) { return n !== +t.dataset.rm; }); renderAll(); return; }
+      if (t.dataset.sno) { var no = +t.dataset.sno, ix = W.seals.indexOf(no); if (ix >= 0) W.seals.splice(ix, 1); else W.seals.push(no); renderSeals(); renderResults(); return; }
+      if (t.id === 'ws-clear') { W.price = ''; priceEl2.value = ''; renderResults(); priceEl2.focus({ preventScroll: true }); return; }
+      if (t.id === 'ws-reset') { W.pick = null; W.seals = []; W.price = ''; W.q = ''; W.sealOpen = false; priceEl2.value = ''; nameEl.value = ''; renderAll(); return; }
+    });
+    document.addEventListener('click', function (e) { if (!nameBox.contains(e.target)) suggEl.hidden = true; });
+    nameEl.addEventListener('input', function () { W.q = nameEl.value; renderSugg(); });    // 変換の途中でも、入力に合わせて候補を出す
+    nameEl.addEventListener('focus', renderSugg);
+    nameEl.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { suggEl.hidden = true; return; }
+      if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); var f = suggEl.querySelector('.sug'); if (f) f.click(); }
+    });
+    priceEl2.addEventListener('input', function () { var n = normalize(priceEl2.value); if (n !== priceEl2.value) priceEl2.value = n; W.price = n === '' || parseInt(n, 10) === 0 ? '' : n; renderResults(); });
+    priceEl2.addEventListener('focus', function () { setTimeout(function () { try { priceEl2.select(); } catch (e) {} }, 0); });
+    priceEl2.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); priceEl2.blur(); } });
+    $('seal-q').addEventListener('input', function () { W.sealQ = this.value; renderSeals(); });
+
+    // ---------- タブ（道具｜武器・盾）。切り替えても、どちらの入力も消えない ----------
+    function setTab(name, remember) {
+      var ws = name === 'ws';
+      $('view-ws').hidden = !ws; $('view-tool').hidden = ws;
+      $('tab-ws').setAttribute('aria-selected', String(ws)); $('tab-tool').setAttribute('aria-selected', String(!ws));
+      $('tab-ws').tabIndex = ws ? 0 : -1; $('tab-tool').tabIndex = ws ? -1 : 0;
+      if (remember) { try { localStorage.setItem(TAB_KEY, name); } catch (e) {} }
+    }
+    document.querySelectorAll('.app-tabs [data-tab]').forEach(function (b) {
+      b.addEventListener('click', function () { setTab(b.getAttribute('data-tab'), true); });
+      b.addEventListener('keydown', function (e) {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        e.preventDefault(); var to = b.getAttribute('data-tab') === 'tool' ? 'ws' : 'tool'; setTab(to, true); $('tab-' + to).focus();
+      });
+    });
+    var startTab = 'tool'; try { startTab = localStorage.getItem(TAB_KEY) === 'ws' ? 'ws' : 'tool'; } catch (e) {}
+    setTab(startTab, false);
+    renderAll();
+  })();
 
   render();
 })();

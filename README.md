@@ -2,6 +2,8 @@
 
 風来のシレン6で、店で見た売値・買値から未識別アイテム（巻物・草と種・腕輪・杖・壺）の候補を絞り込むWebアプリです。判断が済んだアイテムを「判断完了」にすると、以後の候補から外れます。判断済みの状態はブラウザの localStorage に保存されます。
 
+上部のタブ「道具｜武器・盾」で切り替えます。「武器・盾」タブでは、武器・盾の名前と買値から、強化値（＋いくつか）と呪いの有無を逆算します（通常／神器。神器は付いている印も選びます）。どちらのタブの入力も、切り替えて保持されます。
+
 ## 構成
 
 | パス | 内容 |
@@ -11,6 +13,8 @@
 | `public/bg/` | 背景のドット絵（ライト=草原、ダーク=夜の部屋）。`tools/make_bg.py` で生成 |
 | `public/changelog/index.html` | 更新履歴ページ（`tools/changelog.json` から生成） |
 | `tools/` | データ取得・HTML生成用のスクリプト |
+| `tools/ws_data.json`, `tools/ws_readings.json` | 武器・盾・印の値段と読み仮名（武器・盾タブ用）。`build_ws_data.py`、`make_ws_readings.py` で生成 |
+| `mocks/` | 画面モック（`weapon-shield.html` は武器・盾タブの検討用。`tools/make_mock_ws.py` で生成） |
 | `licenses/` | 同梱フォントのライセンス |
 
 ## Cloudflare Workersへのデプロイ
@@ -48,6 +52,19 @@ LINESEED_DIR=/path/to/fonts/ python3 assemble.py   # ../public/index.html を生
 ```
 
 `LINESEED_DIR` には `LINESeedJP-Regular.woff2` と `LINESeedJP-Bold.woff2` を置いたディレクトリを指定します。
+
+武器・盾タブのデータは、Wikiの「武器」「盾」「印」のページ（EUC-JP）から取得します。
+
+```sh
+cd tools && mkdir -p ws && for p in "武器:weapon" "盾:shield" "印:seal"; do
+  n=${p%%:*}; f=${p##*:}
+  curl -sS -L "https://shiren6.game-info.wiki/d/$(printf %s "$n" | iconv -f UTF-8 -t EUC-JP | od -An -tx1 | tr -d '\n' | sed 's/ /%/g')" | iconv -f EUC-JP -t UTF-8//IGNORE > ws/$f.html
+done
+python3 -I build_ws_data.py ws        # ws_data.json を生成
+python3 -I make_ws_readings.py        # ws_readings.json を生成（pykakasi が必要）
+```
+
+武器・盾の値段は「基礎の買値（神器は2倍）＋追加した印の買値＋100×強化値」、呪いは合計の87%（小数点以下切り捨て）として計算します。印の値段はWikiに載っているコミュニティの検証値です。
 
 ## 更新履歴ページの更新手順
 

@@ -16,7 +16,13 @@ for i in items:
 data_json=json.dumps(data,ensure_ascii=False,separators=(',',':'))
 t=open('template.html',encoding='utf8').read()
 readings=json.load(open('readings.json',encoding='utf8'))
-text=t.replace('/*DATA*/',data_json).replace('/*READINGS*/',json.dumps(readings,ensure_ascii=False,separators=(',',':')))
+ws=json.load(open('ws_data.json',encoding='utf8'))
+def ws_item(x): return {'n':x['n'],'base':x['base'],'slots':x['slots'],'buy':x['buy'],'seal':x['seal']}
+ws_data={'weapons':[ws_item(x) for x in ws['weapons']],'shields':[ws_item(x) for x in ws['shields']],
+         'seals':[{'k':x['k'],'no':x['no'],'ab':x['ab'],'n':x['n'],'nat':x['nat'],'buy':x['buy']} for x in ws['seals']]}  # 売値は使わない
+ws_read=json.load(open('ws_readings.json',encoding='utf8'))
+dump=lambda o: json.dumps(o,ensure_ascii=False,separators=(',',':'))
+text=t.replace('/*DATA*/',data_json).replace('/*READINGS*/',dump(readings)).replace('/*WS*/',dump(ws_data)).replace('/*WSREAD*/',dump(ws_read))
 chars=set(text)|set(chr(c) for c in range(0x20,0x7f))|set('、。・「」（）×✓…·→％％：／〜ー　')
 chars|={chr(c) for c in range(0x3040,0x3100)}
 import os
