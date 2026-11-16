@@ -65,14 +65,14 @@ CSS = '''
 .ws-label { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; font-size: 14px; font-weight: 700; color: var(--rg-accent-text); letter-spacing: .04em; }
 .ws-label small { font-size: 12.5px; font-weight: 400; color: var(--rg-muted); letter-spacing: 0; }
 .name-box { position: relative; }
-.rg-theme .ws-input { min-height: 56px; border-radius: 999px; padding: 8px 22px; font-size: 20px; font-weight: 700; background: var(--lg-input); border: 1px solid var(--lg-edge);
+.rg-theme .ws-input { height: 56px; min-height: 56px; line-height: 1.3; border-radius: 999px; padding: 8px 22px 8px 26px; font-size: 20px; font-weight: 700; background: var(--lg-input); border: 1px solid var(--lg-edge);
   box-shadow: inset 0 2px 8px rgba(10, 24, 60, .10), inset 0 1px 0 var(--lg-spec), 0 4px 14px rgba(8, 14, 38, .16); }
 .rg-theme .ws-input.num { font-size: 28px; font-variant-numeric: tabular-nums; letter-spacing: .02em; padding-right: 54px; }
 .rg-theme .ws-input.num::placeholder, .rg-theme .ws-input::placeholder { font-size: 16px; font-weight: 400; letter-spacing: 0; }
 .rg-theme .ws-input:focus-visible { outline: 0; border-color: var(--rg-accent); box-shadow: 0 0 0 4px rgba(76, 147, 224, .32), inset 0 2px 8px rgba(10, 24, 60, .10), 0 6px 22px rgba(42, 108, 184, .35); }
 .price-box { position: relative; }
 .price-box .price-clear { right: 6px; }
-.picked { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 6px 8px 6px 10px; border-radius: 999px; background: var(--lg-input); border: 1px solid var(--lg-edge);
+.picked { display: flex; align-items: center; gap: 12px; height: 56px; min-height: 56px; padding: 6px 8px 6px 10px; border-radius: 999px; background: var(--lg-input); border: 1px solid var(--lg-edge);
   box-shadow: inset 0 1px 0 var(--lg-spec), 0 4px 14px rgba(8, 14, 38, .12); }
 .picked .cat-ico { width: 38px; height: 38px; padding: 7px; border-radius: 14px; }
 .picked-name { min-width: 0; flex: 1; font-size: 19px; line-height: 1.35; font-weight: 700; overflow-wrap: anywhere; }
@@ -135,9 +135,9 @@ CSS = '''
 @media (max-width: 900px) { .steps { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 700px) {
   .ws-inputs { grid-column: 1 / -1; grid-row: 2; max-width: none; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 8px; }
-  .rg-theme .ws-input { min-height: 50px; padding-inline: 14px; font-size: 16px; }
+  .rg-theme .ws-input { padding-inline: 14px; font-size: 16px; }
   .rg-theme .ws-input.num { font-size: 22px; padding-right: 44px; }
-  .picked { min-height: 50px; gap: 8px; padding-left: 14px; }
+  .picked { gap: 8px; padding-left: 14px; }
   .picked .cat-ico { display: none; }
   .picked-name { font-size: 16px; }
   .picked .rg-button { min-height: 36px; padding: 2px 10px; font-size: 13px; }
