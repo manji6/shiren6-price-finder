@@ -336,8 +336,8 @@ BODY = '''
     if (it) {
       box.innerHTML = ico(S.pick.k === 'w' ? P.w : P.s) + '<span class="picked-name">' + esc(it.n) + '</span><button class="rg-button" type="button" id="re-pick" aria-label="名前を選び直す">変更</button>';
     }
-    var pm = $('pick-meta'); pm.hidden = !(it && S.g === 'j');
-    if (it && S.g === 'j') pm.textContent = (S.pick.k === 'w' ? '武器' : '盾') + '・基礎値 ' + it.base + '・印数 ' + it.slots + '・神器の買値 ' + fmt(it.buy * 2) + '（基本印のみ）';
+    var pm = $('pick-meta'); pm.hidden = !it;
+    if (it) { var kn2 = S.pick.k === 'w' ? '武器' : '盾'; pm.textContent = kn2 + '・基礎値 ' + it.base + '・印数 ' + it.slots + '・' + (S.g === 'j' ? '神器の買値 ' + fmt(it.buy * 2) + '（基本印のみ）' : kn2 + 'の買値 ' + fmt(it.buy)); }
   }
   function renderSugg() {
     var box = $('ws-sugg');
