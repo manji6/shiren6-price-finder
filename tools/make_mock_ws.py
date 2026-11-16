@@ -206,7 +206,7 @@ BODY = '''
       </div>
       <div class="ws-fields">
         <div class="ws-field">
-          <div class="ws-label"><span>武器・盾の名前</span><small>ゲームで名前は分かるので、そのまま選びます</small></div>
+          <div class="ws-label"><span>武器・盾の名前</span></div>
           <div class="name-box" id="name-box">
             <input class="rg-input ws-input" id="ws-name" type="text" autocomplete="off" spellcheck="false" placeholder="名前を入力（例：かたな、katana）" aria-controls="ws-sugg">
             <div class="picked" id="picked" hidden></div>
@@ -339,7 +339,7 @@ BODY = '''
     $('seal-box').hidden = !(S.g === 'j');
     if (it) {
       box.innerHTML = ico(S.pick.k === 'w' ? P.w : P.s) + '<div class="picked-main"><span class="picked-name">' + esc(it.n) + '</span><span class="picked-meta">' + (S.pick.k === 'w' ? '武器' : '盾') + '・基礎値 ' + it.base + '・印数 ' + it.slots +
-        (it.seal ? '・最初から ' + esc(it.seal) : '') + '・' + (S.g === 'j' ? '基本の買値 ' + fmt(it.buy) + ' → 神器は ' + fmt(it.buy * 2) + '（2倍）' : '基本の買値 ' + fmt(it.buy)) + '</span></div><button class="rg-button" type="button" id="re-pick">変更</button>';
+        (it.seal ? '・最初から ' + esc(it.seal) : '') + '・' + (S.g === 'j' ? '神器の買値 ' + fmt(it.buy * 2) : '買値 ' + fmt(it.buy)) + '</span></div><button class="rg-button" type="button" id="re-pick">変更</button>';
     }
   }
   function renderSugg() {
@@ -365,7 +365,7 @@ BODY = '''
     }).join('');
     h += '<button class="rg-button seal-add" type="button" id="seal-toggle" ' + (it ? '' : 'disabled') + '>' + (S.sealOpen ? '閉じる' : '＋ 印を追加') + '</button>';
     chips.innerHTML = h;
-    $('seal-sum').textContent = it ? (S.seals.length ? '強化値 0・呪いなしの買値：' + fmt(it.buy * 2) + '（基礎×2）' + (tb ? ' + ' + fmt(tb) + '（印）' : '') + ' ＝ ' + fmt(it.buy * 2 + tb) : 'なければそのままで大丈夫です') : '先に名前を選んでください';
+    $('seal-sum').textContent = it ? (S.seals.length ? '強化値 0・呪いなしの買値：' + fmt(it.buy * 2 + tb) : 'なければそのままで大丈夫です') : '先に名前を選んでください';
     $('seal-panel').hidden = !(S.sealOpen && it);
     if (S.sealOpen && it) {
       var q = S.sealQ.trim();
