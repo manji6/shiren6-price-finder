@@ -51,7 +51,6 @@ CSS = '''
 .seg button:focus-visible { outline: 2px solid var(--rg-accent); outline-offset: 1px; }
 .seg svg { width: 22px; height: 22px; flex: none; }
 .seg-lg button { min-height: 50px; padding-inline: 30px; font-size: 17px; }
-.keep-note { padding: 2px 14px; border-radius: 999px; background: var(--lg-glass-b); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); font-size: 13px; line-height: 1.7; color: var(--rg-text); text-align: center; }
 
 /* ---- ナビ（武器・盾）：いま調べている条件を要約して出す */
 .ws-inputs { justify-self: center; width: 100%; max-width: 720px; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 12px; }
@@ -174,7 +173,6 @@ BODY = '''
       <button type="button" role="tab" id="tab-tool" data-tab="tool" aria-selected="false">__SCROLL__道具</button>
       <button type="button" role="tab" id="tab-ws" data-tab="ws" aria-selected="true">__SWORD__武器・盾</button>
     </div>
-    <p class="keep-note">タブを切り替えても、もう一方の入力と判断済みはそのまま残ります。</p>
   </div>
 
   <!-- 道具タブのナビ（現行どおり） -->
