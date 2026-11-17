@@ -7,6 +7,8 @@
   "observability": {
     "enabled": true
   },
+  // ブランチごとのプレビュー（Workers Builds の非本番ブランチが `wrangler preview` で使う）。空でよい
+  "previews": {},
   "routes": [
     { "pattern": "shiren6.amanohashi.date", "custom_domain": true }
   ]
